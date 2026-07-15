@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Controls;
 using AFMS.App.ViewModels;
 
 namespace AFMS.App.Views;
@@ -17,4 +18,7 @@ public partial class LoginWindow : Window
     }
 
     private void HandleLoginSucceeded() => DialogResult = true;
+
+    private void HandlePasswordChanged(object sender, RoutedEventArgs e) =>
+        _viewModel.Password = ((PasswordBox)sender).Password;
 }
