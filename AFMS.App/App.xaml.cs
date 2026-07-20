@@ -22,6 +22,7 @@ public partial class App : System.Windows.Application
     private IHost? _host;
     private DispatcherTimer? _maintenanceTimer;
     private bool _restartRequested;
+    private bool _databaseInitialized;
     private Task? _shutdownTask;
 
     protected override async void OnStartup(StartupEventArgs e)
@@ -88,6 +89,7 @@ public partial class App : System.Windows.Application
                 if (File.Exists(paths.DatabasePath) && (await database.Database.GetPendingMigrationsAsync()).Any())
                     await backupService.CreateAsync(AFMS.Domain.Enums.BackupKind.PreMigration);
                 await startupServices.GetRequiredService<IDatabaseInitializer>().InitializeAsync();
+                _databaseInitialized = true;
                 await backupService.CompletePendingRestoreAuditAsync();
                 await backupService.RunScheduledBackupIfDueAsync();
 
@@ -206,7 +208,7 @@ public partial class App : System.Windows.Application
     private async Task PrepareShutdownCoreAsync(bool showBackupWarning)
     {
         _maintenanceTimer?.Stop();
-        if (_host is not null)
+        if (_host is not null && _databaseInitialized)
         {
             try
             {

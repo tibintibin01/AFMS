@@ -193,6 +193,38 @@ public sealed class Phase7HardeningIntegrationTests
     }
 
     [Fact]
+    public async Task Initializer_UpgradesMixedLegacyAuditHistory_WithoutDeletingRecords()
+    {
+        await using var fixture = await FiscalFixture.CreateAsync();
+        var audit = fixture.Service<IAuditService>();
+        await audit.RecordAsync(UserActivityType.RecordCreated, "Protected audit record", "AuditUpgradeTest", Guid.NewGuid(), null, null);
+        await fixture.Service<IUnitOfWork>().SaveChangesAsync();
+
+        var db = fixture.Service<AfmsDbContext>();
+        var countBefore = await db.AuditLogs.CountAsync();
+        await db.Database.ExecuteSqlRawAsync("DROP TRIGGER TR_AuditLogs_RequireIntegrityHash;");
+        db.AuditLogs.Add(new AuditLog
+        {
+            ActivityType = UserActivityType.RecordCreated,
+            Description = "Retained legacy unsigned record",
+            EntityName = "LegacyAudit",
+            MachineName = "LegacyComputer",
+            OccurredAt = DateTimeOffset.UtcNow.AddSeconds(1)
+        });
+        await db.SaveChangesAsync();
+        db.ChangeTracker.Clear();
+
+        await fixture.Service<IDatabaseInitializer>().InitializeAsync();
+
+        db.ChangeTracker.Clear();
+        var upgraded = await db.AuditLogs.AsNoTracking().ToListAsync();
+        Assert.Equal(countBefore + 2, upgraded.Count); // retained legacy row plus the upgrade audit record
+        Assert.All(upgraded, entry => Assert.Equal(64, entry.IntegrityHash?.Length));
+        await Assert.ThrowsAsync<SqliteException>(() =>
+            db.Database.ExecuteSqlRawAsync("UPDATE AuditLogs SET Description='blocked' WHERE EntityName='LegacyAudit'"));
+    }
+
+    [Fact]
     public async Task AuditLog_IsAppendOnly_AndSupportsServerPagedFiltering()
     {
         await using var fixture = await FiscalFixture.CreateAsync(); var audit = fixture.Service<IAuditService>();

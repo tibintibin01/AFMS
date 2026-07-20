@@ -48,9 +48,24 @@ public sealed class DatabaseInitializer(
     {
         logger.LogInformation("Initializing AFMS database");
         await context.Database.MigrateAsync(cancellationToken);
+        var upgradedAuditRecords = await AuditIntegrity.UpgradeLegacyChainAsync(context, cancellationToken);
+        if (upgradedAuditRecords > 0)
+            logger.LogWarning("Upgraded {AuditEntryCount} retained legacy audit records to the protected integrity chain", upgradedAuditRecords);
         var auditEntries = await context.AuditLogs.AsNoTracking().ToListAsync(cancellationToken);
         AuditIntegrity.Verify(auditEntries);
         logger.LogInformation("Verified the AFMS audit integrity chain ({AuditEntryCount} records)", auditEntries.Count);
+        if (upgradedAuditRecords > 0)
+        {
+            await auditLogs.AddAsync(new AuditLog
+            {
+                ActivityType = UserActivityType.RecordUpdated,
+                Description = "Legacy audit history upgraded to the protected integrity chain.",
+                EntityName = "AuditLog",
+                Module = "Security",
+                MachineName = Environment.MachineName,
+                NewValues = JsonSerializer.Serialize(new { RecordsProtected = upgradedAuditRecords })
+            }, cancellationToken);
+        }
         await BackfillAccountabilityRangesAsync(cancellationToken);
 
         var existingRoles = await context.Roles.Include(role => role.Permissions).ToListAsync(cancellationToken);
