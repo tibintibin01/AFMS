@@ -3,42 +3,42 @@
         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
         <StackPanel><TextBlock Text="Stock Inventory" FontSize="27" FontWeight="SemiBold"/><TextBlock Text="Find any booklet—or any individual receipt number—and review its complete accountability." Foreground="{StaticResource MutedTextBrush}" Margin="0,5,0,0"/></StackPanel>
         <StackPanel Grid.Row="1" Margin="0,18,0,12">
-            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="2*"/><ColumnDefinition Width="100"/><ColumnDefinition Width="120"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" ToolTip="Reference, form type, collector, or storage location" Margin="0,0,8,0"/>
-                <ComboBox Grid.Column="1" ItemsSource="{Binding FormTypes}" SelectedItem="{Binding SelectedFormType}" Margin="0,0,8,0"/>
-                <TextBox Grid.Column="2" Text="{Binding SeriesYearText}" ToolTip="Series year" Margin="0,0,8,0"/>
-                <TextBox Grid.Column="3" Text="{Binding SerialNumberText}" ToolTip="Individual receipt serial number" Margin="0,0,8,0"/>
-                <Button Grid.Column="4" Content="Search inventory" Command="{Binding SearchCommand}" Style="{StaticResource PrimaryButtonStyle}" IsDefault="True"/>
-            </Grid>
+            <WrapPanel>
+                <StackPanel Width="300" Margin="0,0,8,0"><TextBlock Text="Search" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" ToolTip="Reference, form type, collector, or storage location"/></StackPanel>
+                <StackPanel Width="250" Margin="0,0,8,0"><TextBlock Text="Form type" Style="{StaticResource FieldLabelStyle}"/><ComboBox ItemsSource="{Binding FormTypes}" SelectedItem="{Binding SelectedFormType}"/></StackPanel>
+                <StackPanel Width="105" Margin="0,0,8,0"><TextBlock Text="Series year" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding SeriesYearText}" MaxLength="4"/></StackPanel>
+                <StackPanel Width="160" Margin="0,0,8,0"><TextBlock Text="Receipt serial" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding SerialNumberText}" ToolTip="Individual receipt serial number"/></StackPanel>
+                <Button Content="Search inventory" Command="{Binding SearchCommand}" Style="{StaticResource PrimaryButtonStyle}" IsDefault="True" VerticalAlignment="Bottom" MinWidth="145"/>
+            </WrapPanel>
             <WrapPanel Margin="0,8,0,0">
-                <ComboBox Width="165" ItemsSource="{Binding InventoryStatuses}" SelectedItem="{Binding SelectedInventoryStatus}" Margin="0,0,8,0"/>
-                <ComboBox Width="190" ItemsSource="{Binding Collectors}" SelectedItem="{Binding SelectedCollector}" Margin="0,0,8,0"/>
-                <ComboBox Width="180" ItemsSource="{Binding Barangays}" SelectedItem="{Binding SelectedBarangay}" Margin="0,0,14,0"/>
-                <DatePicker Width="130" SelectedDate="{Binding ReceivedFrom}" ToolTip="Received from" Margin="0,0,8,0"/>
-                <DatePicker Width="130" SelectedDate="{Binding ReceivedTo}" ToolTip="Received through" Margin="0,0,14,0"/>
-                <CheckBox Content="Available only" IsChecked="{Binding AvailableOnly}" VerticalAlignment="Center" Margin="0,0,14,0"/>
-                <CheckBox Content="Outstanding only" IsChecked="{Binding OutstandingOnly}" VerticalAlignment="Center"/>
+                <StackPanel Width="165" Margin="0,0,8,0"><TextBlock Text="Status" Style="{StaticResource FieldLabelStyle}"/><ComboBox ItemsSource="{Binding InventoryStatuses}" SelectedItem="{Binding SelectedInventoryStatus}"/></StackPanel>
+                <StackPanel Width="190" Margin="0,0,8,0"><TextBlock Text="Collector" Style="{StaticResource FieldLabelStyle}"/><ComboBox ItemsSource="{Binding Collectors}" SelectedItem="{Binding SelectedCollector}"/></StackPanel>
+                <StackPanel Width="180" Margin="0,0,14,0"><TextBlock Text="Barangay" Style="{StaticResource FieldLabelStyle}"/><ComboBox ItemsSource="{Binding Barangays}" SelectedItem="{Binding SelectedBarangay}"/></StackPanel>
+                <StackPanel Width="150" Margin="0,0,8,0"><TextBlock Text="Received from" Style="{StaticResource FieldLabelStyle}"/><DatePicker SelectedDate="{Binding ReceivedFrom}" SelectedDateFormat="Short"/></StackPanel>
+                <StackPanel Width="150" Margin="0,0,14,0"><TextBlock Text="Received through" Style="{StaticResource FieldLabelStyle}"/><DatePicker SelectedDate="{Binding ReceivedTo}" SelectedDateFormat="Short"/></StackPanel>
+                <CheckBox Content="Available only" IsChecked="{Binding AvailableOnly}" VerticalAlignment="Top" Margin="0,29,14,0"/>
+                <CheckBox Content="Outstanding only" IsChecked="{Binding OutstandingOnly}" VerticalAlignment="Top" Margin="0,29,0,0"/>
             </WrapPanel>
         </StackPanel>
-        <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="390"/></Grid.ColumnDefinitions>
-            <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedBooklet}">
+        <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="*" MinWidth="420"/><ColumnDefinition Width="300"/></Grid.ColumnDefinitions>
+            <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedBooklet}" HorizontalScrollBarVisibility="Auto">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Form type" Binding="{Binding FormType}" Width="*" MinWidth="160"/>
-                    <DataGridTextColumn Header="Year" Binding="{Binding SeriesYear}" Width="55"/>
-                    <DataGridTextColumn Header="Booklet" Binding="{Binding BookletNumber}" Width="60"/>
-                    <DataGridTextColumn Header="Beginning" Binding="{Binding BeginningSerial}" Width="85"/>
-                    <DataGridTextColumn Header="Ending" Binding="{Binding EndingSerial}" Width="85"/>
-                    <DataGridTextColumn Header="Total" Binding="{Binding TotalQuantity}" Width="55"/>
-                    <DataGridTextColumn Header="Used" Binding="{Binding UsedQuantity}" Width="50"/>
-                    <DataGridTextColumn Header="Remaining" Binding="{Binding RemainingQuantity}" Width="70"/>
-                    <DataGridTextColumn Header="Holder" Binding="{Binding CurrentHolder}" Width="130"/>
-                    <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="110"/>
-                    <DataGridTextColumn Header="Received" Binding="{Binding DateReceived, StringFormat={}{0:MMM dd, yyyy}}" Width="100"/>
-                    <DataGridTextColumn Header="Issued" Binding="{Binding DateIssued, StringFormat={}{0:MMM dd, yyyy}}" Width="100"/>
-                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90"/>
-                    <DataGridTextColumn Header="Storage" Binding="{Binding StorageLocation}" Width="120"/>
-                    <DataGridTextColumn Header="Last movement" Binding="{Binding LastMovementDate, StringFormat={}{0:MMM dd, yyyy HH:mm}}" Width="135"/>
-                    <DataGridTextColumn Header="Remarks" Binding="{Binding Remarks}" Width="150"/>
+                    <DataGridTextColumn Header="Form type" Binding="{Binding FormType}" Width="180"/>
+                    <DataGridTextColumn Header="Year" Binding="{Binding SeriesYear}" Width="70"/>
+                    <DataGridTextColumn Header="Booklet" Binding="{Binding BookletNumber}" Width="90"/>
+                    <DataGridTextColumn Header="Beginning serial" Binding="{Binding BeginningSerial}" Width="115"/>
+                    <DataGridTextColumn Header="Ending serial" Binding="{Binding EndingSerial}" Width="110"/>
+                    <DataGridTextColumn Header="Total" Binding="{Binding TotalQuantity}" Width="75"/>
+                    <DataGridTextColumn Header="Used" Binding="{Binding UsedQuantity}" Width="70"/>
+                    <DataGridTextColumn Header="Remaining" Binding="{Binding RemainingQuantity}" Width="95"/>
+                    <DataGridTextColumn Header="Current holder" Binding="{Binding CurrentHolder}" Width="150"/>
+                    <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="130"/>
+                    <DataGridTextColumn Header="Date received" Binding="{Binding DateReceived, StringFormat={}{0:MMM dd, yyyy}}" Width="120"/>
+                    <DataGridTextColumn Header="Date issued" Binding="{Binding DateIssued, StringFormat={}{0:MMM dd, yyyy}}" Width="110"/>
+                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="105"/>
+                    <DataGridTextColumn Header="Storage location" Binding="{Binding StorageLocation}" Width="140"/>
+                    <DataGridTextColumn Header="Last movement" Binding="{Binding LastMovementDate, StringFormat={}{0:MMM dd, yyyy HH:mm}}" Width="160"/>
+                    <DataGridTextColumn Header="Remarks" Binding="{Binding Remarks}" Width="180"/>
                 </DataGrid.Columns>
             </DataGrid>
             <Border Grid.Column="1" Margin="16,0,0,0" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6">

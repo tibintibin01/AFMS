@@ -23,7 +23,7 @@
                         <DataGridTextColumn Header="Reference" Binding="{Binding ReferenceNumber}" Width="145"/>
                         <DataGridTextColumn Header="Received" Binding="{Binding DateReceived, StringFormat={}{0:MMM dd, yyyy}}" Width="105"/>
                         <DataGridTextColumn Header="Form type" Binding="{Binding FormType}" Width="*" MinWidth="170"/>
-                        <DataGridTextColumn Header="Series" Binding="{Binding SeriesYear}" Width="60"/>
+                        <DataGridTextColumn Header="Series" Binding="{Binding SeriesYear}" Width="75"/>
                         <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="85"/>
                     </DataGrid.Columns>
                 </DataGrid>
@@ -62,11 +62,11 @@
                             <DockPanel Margin="0,15,0,6"><TextBlock Text="Receipt ranges" FontWeight="SemiBold" VerticalAlignment="Center"/><Button Content="Add range" Command="{Binding AddItemCommand}" Style="{StaticResource SecondaryButtonStyle}" DockPanel.Dock="Right" Padding="10,5"/></DockPanel>
                             <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}" IsReadOnly="False" Height="180" RowHeight="34">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Books" Binding="{Binding NumberOfBooklets, UpdateSourceTrigger=PropertyChanged}" Width="55"/>
-                                    <DataGridTextColumn Header="Per book" Binding="{Binding ReceiptsPerBooklet, UpdateSourceTrigger=PropertyChanged}" Width="65"/>
+                                    <DataGridTextColumn Header="Books" Binding="{Binding NumberOfBooklets, UpdateSourceTrigger=PropertyChanged}" Width="70"/>
+                                    <DataGridTextColumn Header="Per book" Binding="{Binding ReceiptsPerBooklet, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
                                     <DataGridTextColumn Header="Beginning" Binding="{Binding BeginningSerial, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
                                     <DataGridTextColumn Header="Ending" Binding="{Binding EndingSerial, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
-                                    <DataGridTextColumn Header="Total" Binding="{Binding TotalReceiptQuantity}" IsReadOnly="True" Width="65"/>
+                                    <DataGridTextColumn Header="Total" Binding="{Binding TotalReceiptQuantity}" IsReadOnly="True" Width="70"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                             <Button Content="Remove selected range" Command="{Binding RemoveItemCommand}" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Left" Padding="10,5" Margin="0,7,0,0"/>

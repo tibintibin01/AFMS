@@ -250,7 +250,7 @@
 
     <Style TargetType="DatePickerTextBox" BasedOn="{StaticResource {x:Type TextBox}}" />
     <Style TargetType="DatePicker">
-        <Setter Property="MinHeight" Value="42" /><Setter Property="Background" Value="White" /><Setter Property="BorderBrush" Value="#C9D4E0" /><Setter Property="BorderThickness" Value="1" /><Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="MinHeight" Value="42" /><Setter Property="MinWidth" Value="150" /><Setter Property="Background" Value="White" /><Setter Property="BorderBrush" Value="#C9D4E0" /><Setter Property="BorderThickness" Value="1" /><Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
 
     <Style TargetType="CheckBox">
@@ -268,10 +268,10 @@
     </Style>
 
     <Style TargetType="DataGridColumnHeader">
-        <Setter Property="Background" Value="#F4F7FA" /><Setter Property="Foreground" Value="#536679" /><Setter Property="FontSize" Value="11" /><Setter Property="FontWeight" Value="SemiBold" /><Setter Property="Padding" Value="12,11" /><Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" /><Setter Property="BorderThickness" Value="0,0,0,1" /><Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="Background" Value="#F4F7FA" /><Setter Property="Foreground" Value="#536679" /><Setter Property="FontSize" Value="11" /><Setter Property="FontWeight" Value="SemiBold" /><Setter Property="Padding" Value="8,11" /><Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" /><Setter Property="BorderThickness" Value="0,0,0,1" /><Setter Property="HorizontalContentAlignment" Value="Left" />
     </Style>
     <Style TargetType="DataGridCell">
-        <Setter Property="Padding" Value="12,5" /><Setter Property="BorderThickness" Value="0" /><Setter Property="VerticalContentAlignment" Value="Center" /><Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Padding" Value="9,5" /><Setter Property="BorderThickness" Value="0" /><Setter Property="VerticalContentAlignment" Value="Center" /><Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Style.Triggers><Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="Transparent" /><Setter Property="Foreground" Value="{StaticResource TextBrush}" /></Trigger></Style.Triggers>
     </Style>
     <Style TargetType="DataGridRow">

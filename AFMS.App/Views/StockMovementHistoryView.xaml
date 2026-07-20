@@ -19,7 +19,7 @@
                 <DataGridTextColumn Header="Form type" Binding="{Binding FormType}" Width="*" MinWidth="170"/>
                 <DataGridTextColumn Header="Beginning" Binding="{Binding BeginningSerial}" Width="90"/>
                 <DataGridTextColumn Header="Ending" Binding="{Binding EndingSerial}" Width="90"/>
-                <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="55"/>
+                <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="75"/>
                 <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="130"/>
                 <DataGridTextColumn Header="Destination" Binding="{Binding Destination}" Width="130"/>
                 <DataGridTextColumn Header="User" Binding="{Binding User}" Width="120"/>
