@@ -1,10 +1,19 @@
+using AFMS.Domain.Enums;
+
 namespace AFMS.Application.Models;
 
 public sealed record LoginRequest(string Username, string Password);
 
 public sealed record CreateAdministratorRequest(string Username, string DisplayName, string Password);
 
-public sealed record CurrentUser(Guid Id, string Username, string DisplayName, IReadOnlySet<string> Roles);
+public sealed record CurrentUser(
+    Guid Id,
+    string Username,
+    string DisplayName,
+    IReadOnlySet<string> Roles,
+    IReadOnlySet<SystemPermission> Permissions,
+    bool MustChangePassword,
+    int SecurityVersion = 1);
 
 public sealed record AuthenticationResult(bool Succeeded, string? ErrorMessage = null)
 {

@@ -15,7 +15,96 @@ namespace AFMS.Infrastructure.Persistence.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.19");
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.29");
+
+            modelBuilder.Entity("AFMS.Domain.Entities.AccountabilityRange", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("AccountableFormBookletId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("BeginningSerial")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CurrentBarangayId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CurrentCollectorId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("EndingSerial")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("LastTransactionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LastTransactionType")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("PreviousBarangayId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("PreviousCollectorId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("PreviousStatus")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PreviousStorageLocation")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("PreviousTransactionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PreviousTransactionType")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SourceIssuanceId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("StorageLocation")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CurrentBarangayId");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("SourceIssuanceId");
+
+                    b.HasIndex("LastTransactionType", "LastTransactionId");
+
+                    b.HasIndex("AccountableFormBookletId", "BeginningSerial", "EndingSerial")
+                        .IsUnique()
+                        .HasFilter("IsActive = 1");
+
+                    b.HasIndex("CurrentCollectorId", "Status", "IsActive");
+
+                    b.ToTable("AccountabilityRanges", t =>
+                        {
+                            t.HasCheckConstraint("CK_AccountabilityRange_Serials", "BeginningSerial >= 0 AND EndingSerial >= BeginningSerial");
+                        });
+                });
 
             modelBuilder.Entity("AFMS.Domain.Entities.AccountableFormBooklet", b =>
                 {
@@ -29,10 +118,22 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<long>("BeginningSerial")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("BookletSequence")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CurrentBarangayId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("CurrentCollectorId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("DateIssued")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("DateReceived")
                         .HasColumnType("TEXT");
 
                     b.Property<long>("EndingSerial")
@@ -41,30 +142,57 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
+                    b.Property<long>("RemainingQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SeriesYear")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid>("StockReceiptItemId")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("StorageLocation")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("TotalQuantity")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<long>("UsedQuantity")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CurrentBarangayId");
 
                     b.HasIndex("CurrentCollectorId");
 
                     b.HasIndex("IsActive");
 
-                    b.HasIndex("StockReceiptItemId");
-
                     b.HasIndex("Status", "CurrentCollectorId");
 
-                    b.HasIndex("AccountableFormTypeId", "BeginningSerial", "EndingSerial")
+                    b.HasIndex("StockReceiptItemId", "BookletSequence")
+                        .IsUnique();
+
+                    b.HasIndex("AccountableFormTypeId", "SeriesYear", "BeginningSerial", "EndingSerial")
                         .IsUnique();
 
                     b.ToTable("AccountableFormBooklets", t =>
                         {
+                            t.HasCheckConstraint("CK_AccountableFormBooklet_Quantities", "TotalQuantity > 0 AND UsedQuantity >= 0 AND RemainingQuantity >= 0 AND UsedQuantity + RemainingQuantity = TotalQuantity");
+
+                            t.HasCheckConstraint("CK_AccountableFormBooklet_Sequence", "BookletSequence > 0 AND SeriesYear >= 1900 AND SeriesYear <= 9999");
+
                             t.HasCheckConstraint("CK_AccountableFormBooklet_Serials", "BeginningSerial >= 0 AND EndingSerial >= BeginningSerial");
                         });
                 });
@@ -73,6 +201,10 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Code")
@@ -101,6 +233,20 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("RequiresIndividualReceiptTracking")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("SerialNumberLength")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SerialNumberPrefix")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("TEXT");
 
@@ -113,7 +259,9 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
                     b.ToTable("AccountableFormTypes", t =>
                         {
-                            t.HasCheckConstraint("CK_AccountableFormType_DefaultReceipts", "DefaultReceiptsPerBooklet >= 0");
+                            t.HasCheckConstraint("CK_AccountableFormType_DefaultReceipts", "DefaultReceiptsPerBooklet > 0");
+
+                            t.HasCheckConstraint("CK_AccountableFormType_SerialLength", "SerialNumberLength IS NULL OR SerialNumberLength > 0");
                         });
                 });
 
@@ -140,13 +288,41 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<string>("EntityName")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("IntegrityHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("MachineName")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("OccurredAt")
+                    b.Property<string>("Module")
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NewValues")
+                        .HasMaxLength(8000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OldValues")
+                        .HasMaxLength(8000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PreviousHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReferenceNumber")
+                        .HasMaxLength(150)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
@@ -157,13 +333,21 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IntegrityHash")
+                        .IsUnique()
+                        .HasFilter("IntegrityHash IS NOT NULL");
+
                     b.HasIndex("IsActive");
 
                     b.HasIndex("OccurredAt");
 
+                    b.HasIndex("ReferenceNumber");
+
                     b.HasIndex("UserId");
 
                     b.HasIndex("EntityName", "EntityId");
+
+                    b.HasIndex("Module", "ActivityType", "OccurredAt");
 
                     b.ToTable("AuditLogs");
                 });
@@ -185,9 +369,23 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Municipality")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Province")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(2000)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
@@ -212,6 +410,10 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("AppointmentReference")
+                        .HasMaxLength(250)
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("BarangayId")
                         .HasColumnType("TEXT");
 
@@ -220,7 +422,15 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ContactNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EmailAddress")
+                        .HasMaxLength(254)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("EmployeeNumber")
@@ -235,8 +445,16 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("OfficeOrDepartment")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Position")
                         .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(2000)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
@@ -268,6 +486,33 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("CloseRequestReason")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("CloseRequestedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CloseRequestedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CloseValidationIssues")
+                        .HasMaxLength(8000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("CloseWithDocumentedExceptions")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("ClosedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ClosedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClosureReason")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
 
@@ -280,11 +525,36 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsClosed")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("ReopenReason")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("ReopenRequestedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ReopenRequestedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("ReopenedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ReopenedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SnapshotReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("WorkflowStatus")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(1);
 
                     b.Property<int>("Year")
                         .HasColumnType("INTEGER");
@@ -293,12 +563,126 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("IsActive");
 
+                    b.HasIndex("WorkflowStatus");
+
                     b.HasIndex("Year")
                         .IsUnique();
 
                     b.ToTable("FiscalYears", t =>
                         {
                             t.HasCheckConstraint("CK_FiscalYear_Dates", "EndDate >= StartDate");
+                        });
+                });
+
+            modelBuilder.Entity("AFMS.Domain.Entities.FiscalYearCarryForward", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("AccountableFormBookletId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("BeginningSerial")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("CollectorId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("EndingSerial")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("FiscalYearId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TargetYear")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountableFormBookletId");
+
+                    b.HasIndex("CollectorId");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("FiscalYearId", "AccountableFormBookletId", "BeginningSerial", "EndingSerial")
+                        .IsUnique();
+
+                    b.ToTable("FiscalYearCarryForwards", t =>
+                        {
+                            t.HasCheckConstraint("CK_FiscalYearCarryForward_Quantity", "Quantity > 0 AND Quantity = (EndingSerial - BeginningSerial + 1)");
+
+                            t.HasCheckConstraint("CK_FiscalYearCarryForward_Serials", "BeginningSerial >= 0 AND EndingSerial >= BeginningSerial");
+                        });
+                });
+
+            modelBuilder.Entity("AFMS.Domain.Entities.FiscalYearSnapshot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("AccountableFormTypeId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("Additions")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("BeginningQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("EndingQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("Exceptions")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("FiscalYearId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("OutstandingQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("Usage")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountableFormTypeId");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("FiscalYearId", "AccountableFormTypeId")
+                        .IsUnique();
+
+                    b.ToTable("FiscalYearSnapshots", t =>
+                        {
+                            t.HasCheckConstraint("CK_FiscalYearSnapshot_Quantities", "BeginningQuantity >= 0 AND Additions >= 0 AND Usage >= 0 AND Exceptions >= 0 AND EndingQuantity >= 0 AND OutstandingQuantity >= 0");
                         });
                 });
 
@@ -311,8 +695,19 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("AccountableFormBookletId")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ActionTaken")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("ApprovalStatus")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("ApprovedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ApprovedByUserId")
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("CollectorId")
                         .HasColumnType("TEXT");
@@ -320,18 +715,62 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateOnly>("DateDiscovered")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("DecisionAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DecisionComments")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Details")
                         .IsRequired()
                         .HasMaxLength(2000)
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("EncodedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("EndingSerial")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("ExceptionType")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("FinalizedAt")
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
+                    b.Property<long>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ReferenceNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("RejectedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTimeOffset>("ReportedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ResolutionStatus")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ReversalReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("ReversedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<long>("SerialNumber")
@@ -340,20 +779,39 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTimeOffset?>("SubmittedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SubmittedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SupportingDocumentReference")
+                        .HasMaxLength(250)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ApprovedByUserId");
+
                     b.HasIndex("CollectorId");
+
+                    b.HasIndex("EncodedByUserId");
 
                     b.HasIndex("IsActive");
 
-                    b.HasIndex("AccountableFormBookletId", "SerialNumber", "ExceptionType");
+                    b.HasIndex("ReferenceNumber")
+                        .IsUnique();
+
+                    b.HasIndex("AccountableFormBookletId", "SerialNumber", "EndingSerial", "ExceptionType");
 
                     b.ToTable("FormExceptions", t =>
                         {
-                            t.HasCheckConstraint("CK_FormException_Serial", "SerialNumber >= 0");
+                            t.HasCheckConstraint("CK_FormException_Quantity", "Quantity > 0 AND Quantity = (EndingSerial - SerialNumber + 1)");
+
+                            t.HasCheckConstraint("CK_FormException_Serial", "SerialNumber >= 0 AND EndingSerial >= SerialNumber");
                         });
                 });
 
@@ -366,13 +824,33 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<int>("ApprovalStatus")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTimeOffset?>("ApprovedAt")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("ApprovedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("BarangayId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CollectionArea")
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("CollectorId")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("DecisionAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DecisionComments")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("FinalizedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
@@ -384,16 +862,54 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly>("IssuedDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReceivedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ReferenceNumber")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTimeOffset?>("RejectedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("RejectedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReleasedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Remarks")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReversalReason")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("ReversedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("SubmittedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SubmittedByUserId")
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("TEXT");
@@ -401,6 +917,8 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ApprovedByUserId");
+
+                    b.HasIndex("BarangayId");
 
                     b.HasIndex("IsActive");
 
@@ -435,24 +953,80 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsReservationActive")
+                        .HasColumnType("INTEGER");
+
                     b.Property<Guid>("IssuanceId")
                         .HasColumnType("TEXT");
+
+                    b.Property<long>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SeriesYear")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountableFormBookletId");
-
                     b.HasIndex("IsActive");
 
-                    b.HasIndex("IssuanceId", "AccountableFormBookletId")
+                    b.HasIndex("AccountableFormBookletId", "BeginningSerial", "EndingSerial")
+                        .IsUnique()
+                        .HasFilter("IsReservationActive = 1");
+
+                    b.HasIndex("IssuanceId", "AccountableFormBookletId", "BeginningSerial", "EndingSerial")
                         .IsUnique();
 
                     b.ToTable("IssuanceItems", t =>
                         {
+                            t.HasCheckConstraint("CK_IssuanceItem_Quantity", "Quantity > 0 AND Quantity = (EndingSerial - BeginningSerial + 1)");
+
                             t.HasCheckConstraint("CK_IssuanceItem_Serials", "BeginningSerial >= 0 AND EndingSerial >= BeginningSerial");
+
+                            t.HasCheckConstraint("CK_IssuanceItem_SeriesYear", "SeriesYear >= 1900 AND SeriesYear <= 9999");
+                        });
+                });
+
+            modelBuilder.Entity("AFMS.Domain.Entities.ReferenceNumberSequence", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("LastNumber")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Prefix")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("Prefix", "Year")
+                        .IsUnique();
+
+                    b.ToTable("ReferenceNumberSequences", t =>
+                        {
+                            t.HasCheckConstraint("CK_ReferenceNumberSequence_Number", "LastNumber > 0");
+
+                            t.HasCheckConstraint("CK_ReferenceNumberSequence_Year", "Year >= 1900 AND Year <= 9999");
                         });
                 });
 
@@ -468,6 +1042,12 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<int>("ApprovalStatus")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTimeOffset?>("ApprovedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ApprovedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<long>("BeginningSerial")
                         .HasColumnType("INTEGER");
 
@@ -477,13 +1057,47 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTimeOffset?>("DecisionAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DecisionComments")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Disposition")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("EncodedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<long>("EndingSerial")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("FinalizedAt")
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid?>("OriginalIssuanceId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PhysicalCondition")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("Quantity")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReceivedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ReferenceNumber")
@@ -491,11 +1105,30 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("RejectedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateOnly>("ReturnDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReversalReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("ReversedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("SubmittedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SubmittedByUserId")
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("TEXT");
@@ -504,9 +1137,15 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("AccountableFormBookletId");
 
+                    b.HasIndex("ApprovedByUserId");
+
                     b.HasIndex("CollectorId");
 
+                    b.HasIndex("EncodedByUserId");
+
                     b.HasIndex("IsActive");
+
+                    b.HasIndex("OriginalIssuanceId");
 
                     b.HasIndex("ReferenceNumber")
                         .IsUnique();
@@ -515,6 +1154,8 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
                     b.ToTable("ReturnTransactions", t =>
                         {
+                            t.HasCheckConstraint("CK_ReturnTransaction_Quantity", "Quantity > 0 AND Quantity = (EndingSerial - BeginningSerial + 1)");
+
                             t.HasCheckConstraint("CK_ReturnTransaction_Serials", "BeginningSerial >= 0 AND EndingSerial >= BeginningSerial");
                         });
                 });
@@ -553,6 +1194,37 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.ToTable("Roles");
                 });
 
+            modelBuilder.Entity("AFMS.Domain.Entities.RolePermission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Permission")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("RoleId", "Permission")
+                        .IsUnique();
+
+                    b.ToTable("RolePermissions");
+                });
+
             modelBuilder.Entity("AFMS.Domain.Entities.StockMovement", b =>
                 {
                     b.Property<Guid>("Id")
@@ -562,10 +1234,23 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("AccountableFormBookletId")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("AccountableFormTypeId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("BarangayId")
+                        .HasColumnType("TEXT");
+
                     b.Property<long>("BeginningSerial")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Destination")
+                        .HasMaxLength(250)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("EffectiveDate")
                         .HasColumnType("TEXT");
 
                     b.Property<long>("EndingSerial")
@@ -574,25 +1259,41 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("FromCollectorId")
                         .HasColumnType("TEXT");
 
+                    b.Property<long>("InventoryQuantityDelta")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("MovementType")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset>("OccurredAt")
+                    b.Property<DateTime>("OccurredAt")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("PerformedByUserId")
                         .HasColumnType("TEXT");
 
+                    b.Property<long>("Quantity")
+                        .HasColumnType("INTEGER");
+
                     b.Property<Guid?>("ReferenceId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReferenceNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ReferenceType")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Remarks")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Source")
+                        .HasMaxLength(250)
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("ToCollectorId")
@@ -602,6 +1303,10 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AccountableFormTypeId");
+
+                    b.HasIndex("BarangayId");
 
                     b.HasIndex("FromCollectorId");
 
@@ -613,10 +1318,21 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("AccountableFormBookletId", "OccurredAt");
 
+                    b.HasIndex("EffectiveDate", "MovementType");
+
                     b.HasIndex("ReferenceType", "ReferenceId");
+
+                    b.HasIndex("ReferenceType", "ReferenceId", "AccountableFormBookletId", "MovementType")
+                        .IsUnique();
 
                     b.ToTable("StockMovements", t =>
                         {
+                            t.HasCheckConstraint("CK_StockMovement_EffectiveDate", "EffectiveDate >= '1900-01-01'");
+
+                            t.HasCheckConstraint("CK_StockMovement_InventoryDelta", "InventoryQuantityDelta >= -Quantity AND InventoryQuantityDelta <= Quantity");
+
+                            t.HasCheckConstraint("CK_StockMovement_Quantity", "Quantity > 0 AND Quantity = (EndingSerial - BeginningSerial + 1)");
+
                             t.HasCheckConstraint("CK_StockMovement_Serials", "BeginningSerial >= 0 AND EndingSerial >= BeginningSerial");
                         });
                 });
@@ -627,14 +1343,27 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("AccountableFormTypeId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("FiscalYearId")
+                    b.Property<Guid>("EncodedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("FinalizedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("FiscalYearId")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("ReceivedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
 
                     b.Property<DateOnly>("ReceivedDate")
                         .HasColumnType("TEXT");
@@ -645,18 +1374,41 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Remarks")
+                        .HasMaxLength(2000)
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTimeOffset?>("ReversedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SeriesYear")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Source")
+                        .HasMaxLength(250)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SourceDocumentNumber")
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("StorageLocation")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("SubmittedAt")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AccountableFormTypeId");
+
+                    b.HasIndex("EncodedByUserId");
 
                     b.HasIndex("FiscalYearId");
 
@@ -665,9 +1417,12 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.HasIndex("ReferenceNumber")
                         .IsUnique();
 
-                    b.HasIndex("ReceivedDate", "Status");
+                    b.HasIndex("ReceivedDate", "Status", "SeriesYear");
 
-                    b.ToTable("StockReceipts");
+                    b.ToTable("StockReceipts", t =>
+                        {
+                            t.HasCheckConstraint("CK_StockReceipt_SeriesYear", "SeriesYear >= 1900 AND SeriesYear <= 9999");
+                        });
                 });
 
             modelBuilder.Entity("AFMS.Domain.Entities.StockReceiptItem", b =>
@@ -691,7 +1446,13 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("NumberOfBooklets")
+                        .HasColumnType("INTEGER");
+
                     b.Property<long>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ReceiptsPerBooklet")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid>("StockReceiptId")
@@ -711,6 +1472,10 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
                     b.ToTable("StockReceiptItems", t =>
                         {
+                            t.HasCheckConstraint("CK_StockReceiptItem_Booklets", "NumberOfBooklets > 0 AND ReceiptsPerBooklet > 0");
+
+                            t.HasCheckConstraint("CK_StockReceiptItem_CalculatedQuantity", "Quantity = (EndingSerial - BeginningSerial + 1) AND Quantity = (NumberOfBooklets * ReceiptsPerBooklet)");
+
                             t.HasCheckConstraint("CK_StockReceiptItem_Quantity", "Quantity > 0");
 
                             t.HasCheckConstraint("CK_StockReceiptItem_Serials", "BeginningSerial >= 0 AND EndingSerial >= BeginningSerial");
@@ -758,6 +1523,68 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.ToTable("SystemSettings");
                 });
 
+            modelBuilder.Entity("AFMS.Domain.Entities.TransactionAttachment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("RelatedTransactionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("RelatedTransactionType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("StoredFileName")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UploadDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UploadedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("StoredFileName")
+                        .IsUnique();
+
+                    b.HasIndex("UploadedByUserId");
+
+                    b.HasIndex("RelatedTransactionType", "RelatedTransactionId");
+
+                    b.ToTable("TransactionAttachments", t =>
+                        {
+                            t.HasCheckConstraint("CK_TransactionAttachment_Size", "FileSize > 0");
+                        });
+                });
+
             modelBuilder.Entity("AFMS.Domain.Entities.Transfer", b =>
                 {
                     b.Property<Guid>("Id")
@@ -770,14 +1597,36 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<int>("ApprovalStatus")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTimeOffset?>("ApprovedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ApprovedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("BarangayId")
+                        .HasColumnType("TEXT");
+
                     b.Property<long>("BeginningSerial")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTimeOffset?>("DecisionAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DecisionComments")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("EncodedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<long>("EndingSerial")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("FinalizedAt")
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("FromCollectorId")
                         .HasColumnType("TEXT");
@@ -785,16 +1634,51 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
+                    b.Property<long>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReceivedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ReferenceNumber")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("RejectedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReleasedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Remarks")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReversalReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("ReversedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("SubmittedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SubmittedByUserId")
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("ToCollectorId")
                         .HasColumnType("TEXT");
@@ -809,6 +1693,12 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("AccountableFormBookletId");
 
+                    b.HasIndex("ApprovedByUserId");
+
+                    b.HasIndex("BarangayId");
+
+                    b.HasIndex("EncodedByUserId");
+
                     b.HasIndex("FromCollectorId");
 
                     b.HasIndex("IsActive");
@@ -822,6 +1712,8 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
                     b.ToTable("Transfers", t =>
                         {
+                            t.HasCheckConstraint("CK_Transfer_Quantity", "Quantity > 0 AND Quantity = (EndingSerial - BeginningSerial + 1)");
+
                             t.HasCheckConstraint("CK_Transfer_Serials", "BeginningSerial >= 0 AND EndingSerial >= BeginningSerial");
                         });
                 });
@@ -844,7 +1736,14 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<long>("EndingSerial")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("GapExplanation")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("Quantity")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
@@ -864,6 +1763,8 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
                     b.ToTable("UsageRanges", t =>
                         {
+                            t.HasCheckConstraint("CK_UsageRange_Quantity", "Quantity > 0 AND Quantity = (EndingSerial - BeginningSerial + 1)");
+
                             t.HasCheckConstraint("CK_UsageRange_Serials", "BeginningSerial >= 0 AND EndingSerial >= BeginningSerial");
                         });
                 });
@@ -874,6 +1775,13 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("AccountableFormTypeId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("AmountCollected")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("ApprovalStatus")
                         .HasColumnType("INTEGER");
 
@@ -881,6 +1789,12 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("EncodedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("FinalizedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
@@ -897,6 +1811,24 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("ReportingDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReversalReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("ReversedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SourceReportNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
@@ -907,6 +1839,10 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AccountableFormTypeId");
+
+                    b.HasIndex("EncodedByUserId");
 
                     b.HasIndex("IsActive");
 
@@ -947,10 +1883,18 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("MustChangePassword")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("SecurityVersion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(1);
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("TEXT");
@@ -958,7 +1902,8 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
 
                     b.HasKey("Id");
 
@@ -967,7 +1912,12 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", t =>
+                        {
+                            t.HasCheckConstraint("CK_User_FailedLoginCount", "FailedLoginCount >= 0");
+
+                            t.HasCheckConstraint("CK_User_SecurityVersion", "SecurityVersion > 0");
+                        });
                 });
 
             modelBuilder.Entity("AFMS.Domain.Entities.UserRole", b =>
@@ -1003,6 +1953,38 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.ToTable("UserRoles");
                 });
 
+            modelBuilder.Entity("AFMS.Domain.Entities.AccountabilityRange", b =>
+                {
+                    b.HasOne("AFMS.Domain.Entities.AccountableFormBooklet", "AccountableFormBooklet")
+                        .WithMany("AccountabilityRanges")
+                        .HasForeignKey("AccountableFormBookletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AFMS.Domain.Entities.Barangay", "CurrentBarangay")
+                        .WithMany()
+                        .HasForeignKey("CurrentBarangayId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("AFMS.Domain.Entities.Collector", "CurrentCollector")
+                        .WithMany()
+                        .HasForeignKey("CurrentCollectorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AFMS.Domain.Entities.Issuance", "SourceIssuance")
+                        .WithMany()
+                        .HasForeignKey("SourceIssuanceId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AccountableFormBooklet");
+
+                    b.Navigation("CurrentBarangay");
+
+                    b.Navigation("CurrentCollector");
+
+                    b.Navigation("SourceIssuance");
+                });
+
             modelBuilder.Entity("AFMS.Domain.Entities.AccountableFormBooklet", b =>
                 {
                     b.HasOne("AFMS.Domain.Entities.AccountableFormType", "AccountableFormType")
@@ -1010,6 +1992,11 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .HasForeignKey("AccountableFormTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("AFMS.Domain.Entities.Barangay", "CurrentBarangay")
+                        .WithMany()
+                        .HasForeignKey("CurrentBarangayId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("AFMS.Domain.Entities.Collector", "CurrentCollector")
                         .WithMany()
@@ -1023,6 +2010,8 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("AccountableFormType");
+
+                    b.Navigation("CurrentBarangay");
 
                     b.Navigation("CurrentCollector");
 
@@ -1056,7 +2045,7 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("AFMS.Domain.Entities.FormException", b =>
+            modelBuilder.Entity("AFMS.Domain.Entities.FiscalYearCarryForward", b =>
                 {
                     b.HasOne("AFMS.Domain.Entities.AccountableFormBooklet", "AccountableFormBooklet")
                         .WithMany()
@@ -1067,11 +2056,71 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.HasOne("AFMS.Domain.Entities.Collector", "Collector")
                         .WithMany()
                         .HasForeignKey("CollectorId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AFMS.Domain.Entities.FiscalYear", "FiscalYear")
+                        .WithMany("CarryForwards")
+                        .HasForeignKey("FiscalYearId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("AccountableFormBooklet");
 
                     b.Navigation("Collector");
+
+                    b.Navigation("FiscalYear");
+                });
+
+            modelBuilder.Entity("AFMS.Domain.Entities.FiscalYearSnapshot", b =>
+                {
+                    b.HasOne("AFMS.Domain.Entities.AccountableFormType", "AccountableFormType")
+                        .WithMany()
+                        .HasForeignKey("AccountableFormTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AFMS.Domain.Entities.FiscalYear", "FiscalYear")
+                        .WithMany("Snapshots")
+                        .HasForeignKey("FiscalYearId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AccountableFormType");
+
+                    b.Navigation("FiscalYear");
+                });
+
+            modelBuilder.Entity("AFMS.Domain.Entities.FormException", b =>
+                {
+                    b.HasOne("AFMS.Domain.Entities.AccountableFormBooklet", "AccountableFormBooklet")
+                        .WithMany("Exceptions")
+                        .HasForeignKey("AccountableFormBookletId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AFMS.Domain.Entities.User", "ApprovedByUser")
+                        .WithMany()
+                        .HasForeignKey("ApprovedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AFMS.Domain.Entities.Collector", "Collector")
+                        .WithMany()
+                        .HasForeignKey("CollectorId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("AFMS.Domain.Entities.User", "EncodedByUser")
+                        .WithMany()
+                        .HasForeignKey("EncodedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AccountableFormBooklet");
+
+                    b.Navigation("ApprovedByUser");
+
+                    b.Navigation("Collector");
+
+                    b.Navigation("EncodedByUser");
                 });
 
             modelBuilder.Entity("AFMS.Domain.Entities.Issuance", b =>
@@ -1080,6 +2129,11 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("ApprovedByUserId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AFMS.Domain.Entities.Barangay", "Barangay")
+                        .WithMany()
+                        .HasForeignKey("BarangayId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("AFMS.Domain.Entities.Collector", "Collector")
                         .WithMany()
@@ -1095,6 +2149,8 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
                     b.Navigation("ApprovedByUser");
 
+                    b.Navigation("Barangay");
+
                     b.Navigation("Collector");
 
                     b.Navigation("IssuedByUser");
@@ -1103,7 +2159,7 @@ namespace AFMS.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("AFMS.Domain.Entities.IssuanceItem", b =>
                 {
                     b.HasOne("AFMS.Domain.Entities.AccountableFormBooklet", "AccountableFormBooklet")
-                        .WithMany()
+                        .WithMany("IssuanceItems")
                         .HasForeignKey("AccountableFormBookletId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1127,15 +2183,48 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("AFMS.Domain.Entities.User", "ApprovedByUser")
+                        .WithMany()
+                        .HasForeignKey("ApprovedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("AFMS.Domain.Entities.Collector", "Collector")
                         .WithMany()
                         .HasForeignKey("CollectorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("AFMS.Domain.Entities.User", "EncodedByUser")
+                        .WithMany()
+                        .HasForeignKey("EncodedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AFMS.Domain.Entities.Issuance", "OriginalIssuance")
+                        .WithMany()
+                        .HasForeignKey("OriginalIssuanceId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("AccountableFormBooklet");
 
+                    b.Navigation("ApprovedByUser");
+
                     b.Navigation("Collector");
+
+                    b.Navigation("EncodedByUser");
+
+                    b.Navigation("OriginalIssuance");
+                });
+
+            modelBuilder.Entity("AFMS.Domain.Entities.RolePermission", b =>
+                {
+                    b.HasOne("AFMS.Domain.Entities.Role", "Role")
+                        .WithMany("Permissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("AFMS.Domain.Entities.StockMovement", b =>
@@ -1145,6 +2234,17 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                         .HasForeignKey("AccountableFormBookletId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("AFMS.Domain.Entities.AccountableFormType", "AccountableFormType")
+                        .WithMany()
+                        .HasForeignKey("AccountableFormTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AFMS.Domain.Entities.Barangay", "Barangay")
+                        .WithMany()
+                        .HasForeignKey("BarangayId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("AFMS.Domain.Entities.Collector", "FromCollector")
                         .WithMany()
@@ -1164,6 +2264,10 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
                     b.Navigation("AccountableFormBooklet");
 
+                    b.Navigation("AccountableFormType");
+
+                    b.Navigation("Barangay");
+
                     b.Navigation("FromCollector");
 
                     b.Navigation("PerformedByUser");
@@ -1173,11 +2277,26 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("AFMS.Domain.Entities.StockReceipt", b =>
                 {
+                    b.HasOne("AFMS.Domain.Entities.AccountableFormType", "AccountableFormType")
+                        .WithMany()
+                        .HasForeignKey("AccountableFormTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AFMS.Domain.Entities.User", "EncodedByUser")
+                        .WithMany()
+                        .HasForeignKey("EncodedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("AFMS.Domain.Entities.FiscalYear", "FiscalYear")
                         .WithMany("StockReceipts")
                         .HasForeignKey("FiscalYearId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AccountableFormType");
+
+                    b.Navigation("EncodedByUser");
 
                     b.Navigation("FiscalYear");
                 });
@@ -1201,11 +2320,38 @@ namespace AFMS.Infrastructure.Persistence.Migrations
                     b.Navigation("StockReceipt");
                 });
 
+            modelBuilder.Entity("AFMS.Domain.Entities.TransactionAttachment", b =>
+                {
+                    b.HasOne("AFMS.Domain.Entities.User", "UploadedByUser")
+                        .WithMany()
+                        .HasForeignKey("UploadedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("UploadedByUser");
+                });
+
             modelBuilder.Entity("AFMS.Domain.Entities.Transfer", b =>
                 {
                     b.HasOne("AFMS.Domain.Entities.AccountableFormBooklet", "AccountableFormBooklet")
                         .WithMany()
                         .HasForeignKey("AccountableFormBookletId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AFMS.Domain.Entities.User", "ApprovedByUser")
+                        .WithMany()
+                        .HasForeignKey("ApprovedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AFMS.Domain.Entities.Barangay", "Barangay")
+                        .WithMany()
+                        .HasForeignKey("BarangayId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("AFMS.Domain.Entities.User", "EncodedByUser")
+                        .WithMany()
+                        .HasForeignKey("EncodedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1223,6 +2369,12 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
                     b.Navigation("AccountableFormBooklet");
 
+                    b.Navigation("ApprovedByUser");
+
+                    b.Navigation("Barangay");
+
+                    b.Navigation("EncodedByUser");
+
                     b.Navigation("FromCollector");
 
                     b.Navigation("ToCollector");
@@ -1231,7 +2383,7 @@ namespace AFMS.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("AFMS.Domain.Entities.UsageRange", b =>
                 {
                     b.HasOne("AFMS.Domain.Entities.AccountableFormBooklet", "AccountableFormBooklet")
-                        .WithMany()
+                        .WithMany("UsageRanges")
                         .HasForeignKey("AccountableFormBookletId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1249,13 +2401,29 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("AFMS.Domain.Entities.UsageReport", b =>
                 {
+                    b.HasOne("AFMS.Domain.Entities.AccountableFormType", "AccountableFormType")
+                        .WithMany()
+                        .HasForeignKey("AccountableFormTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("AFMS.Domain.Entities.Collector", "Collector")
                         .WithMany()
                         .HasForeignKey("CollectorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("AFMS.Domain.Entities.User", "EncodedByUser")
+                        .WithMany()
+                        .HasForeignKey("EncodedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AccountableFormType");
+
                     b.Navigation("Collector");
+
+                    b.Navigation("EncodedByUser");
                 });
 
             modelBuilder.Entity("AFMS.Domain.Entities.UserRole", b =>
@@ -1279,7 +2447,15 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("AFMS.Domain.Entities.AccountableFormBooklet", b =>
                 {
+                    b.Navigation("AccountabilityRanges");
+
+                    b.Navigation("Exceptions");
+
+                    b.Navigation("IssuanceItems");
+
                     b.Navigation("Movements");
+
+                    b.Navigation("UsageRanges");
                 });
 
             modelBuilder.Entity("AFMS.Domain.Entities.Barangay", b =>
@@ -1289,6 +2465,10 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("AFMS.Domain.Entities.FiscalYear", b =>
                 {
+                    b.Navigation("CarryForwards");
+
+                    b.Navigation("Snapshots");
+
                     b.Navigation("StockReceipts");
                 });
 
@@ -1299,6 +2479,8 @@ namespace AFMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("AFMS.Domain.Entities.Role", b =>
                 {
+                    b.Navigation("Permissions");
+
                     b.Navigation("UserRoles");
                 });
 

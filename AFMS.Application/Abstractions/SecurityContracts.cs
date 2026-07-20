@@ -12,6 +12,8 @@ public interface IPasswordHasher
 public interface IAuthenticationService
 {
     Task<AuthenticationResult> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default);
+    Task<AuthenticationResult> ChangePasswordAsync(string currentPassword, string newPassword, CancellationToken cancellationToken = default);
+    Task<bool> RefreshCurrentUserAsync(CancellationToken cancellationToken = default);
     Task LogoutAsync(CancellationToken cancellationToken = default);
 }
 
@@ -27,14 +29,19 @@ public interface ICurrentUserSession
 {
     CurrentUser? User { get; }
     bool IsAuthenticated { get; }
-    void Begin(CurrentUser user);
+    DateTimeOffset? LastActivityAt { get; }
+    DateTimeOffset? ExpiresAt { get; }
+    bool HasExpired { get; }
+    void Begin(CurrentUser user, TimeSpan? timeout = null);
+    void Touch();
+    void ReplaceUser(CurrentUser user);
     void End();
 }
 
 public interface IAuthorizationService
 {
-    bool IsInRole(string roleName);
-    bool Can(UserActivityType activityType);
+    bool HasPermission(SystemPermission permission);
+    void EnsurePermission(SystemPermission permission);
 }
 
 public interface IDatabaseInitializer

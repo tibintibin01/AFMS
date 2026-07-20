@@ -7,3 +7,17 @@ TestResults/
 *.user
 *.suo
 .vs/
+
+# Generated release, preview, and test output
+artifacts/
+tmp/
+output/pdf/
+output/reports/
+
+# Runtime data must never be committed
+*.log
+*.afmsbak
+*.attachments.zip
+Backups/
+Reports/
+Attachments/

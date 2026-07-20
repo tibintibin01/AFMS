@@ -1,0 +1,29 @@
+<UserControl x:Class="AFMS.App.Views.SystemSettingsView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="28,24" MaxWidth="1000" HorizontalAlignment="Left">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+            <StackPanel><TextBlock Text="System Settings" FontSize="27" FontWeight="SemiBold"/><TextBlock Text="Municipality, office, signatory, fiscal-year, reference, and output configuration." Foreground="{StaticResource MutedTextBrush}" Margin="0,5,0,0"/></StackPanel>
+            <ProgressBar Grid.Row="1" IsIndeterminate="True" Height="3" Margin="0,18,0,0" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            <Grid Grid.Row="2" Margin="0,10,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="22"><StackPanel>
+                    <TextBlock Text="Municipality and office" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="Municipality name" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Settings.MunicipalityName}"/>
+                    <TextBlock Text="Province name" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Settings.ProvinceName}"/><TextBlock Text="Office name" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Settings.OfficeName}"/>
+                    <TextBlock Text="Office address" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Settings.OfficeAddress}" AcceptsReturn="True" Height="65"/><TextBlock Text="Municipal Treasurer name" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Settings.MunicipalTreasurerName}"/>
+                    <TextBlock Text="Default fiscal year" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Settings.DefaultFiscalYear}"/>
+                </StackPanel></Border>
+                <Border Grid.Column="2" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="22"><StackPanel>
+                    <TextBlock Text="Reports and files" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="Prepared by" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Settings.PreparedBy}"/>
+                    <TextBlock Text="Checked by" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Settings.CheckedBy}"/><TextBlock Text="Certified correct by" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Settings.CertifiedCorrectBy}"/>
+                    <TextBlock Text="Reference number prefixes" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Settings.ReferenceNumberPrefixes}" ToolTip="Configurable text or JSON used by future transaction modules"/>
+                    <TextBlock Text="Database backup folder" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Settings.DatabaseBackupFolder}"/><TextBlock Text="Report output folder" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Settings.ReportOutputFolder}"/>
+                    <CheckBox Content="Enable scheduled daily backup" IsChecked="{Binding Settings.DailyBackupEnabled}" Margin="0,14,0,4"/>
+                    <TextBlock Text="Daily backup time (24-hour HH:mm)" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Settings.DailyBackupTime}"/>
+                    <TextBlock Text="Backup retention (days)" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Settings.BackupRetentionDays}"/>
+                    <TextBlock Text="Warn if backup is older than (hours)" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Settings.RecentBackupWarningHours}"/>
+                    <TextBlock Text="Automatic logout after inactivity (minutes)" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Settings.SessionTimeoutMinutes}"/>
+                </StackPanel></Border>
+            </Grid>
+            <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,18,0,0"><Button Content="Save settings" Command="{Binding SaveCommand}" Style="{StaticResource PrimaryButtonStyle}"/><TextBlock Text="{Binding Message}" Style="{StaticResource NotificationTextStyle}" Margin="16,12,0,0"/></StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

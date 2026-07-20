@@ -100,7 +100,7 @@ public sealed class FirstRunSetupViewModel : ObservableObject
     }
 
     private void HandleException(Exception exception) =>
-        ErrorMessage = $"Administrator setup failed: {exception.Message}";
+        ErrorMessage = Services.UserFacingError.From(exception);
 
     private void RaiseCanExecuteChanged() => ((AsyncRelayCommand)CreateAdministratorCommand).RaiseCanExecuteChanged();
 }

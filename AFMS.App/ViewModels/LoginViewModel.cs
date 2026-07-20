@@ -2,6 +2,7 @@ using System.Windows.Input;
 using AFMS.Application.Abstractions;
 using AFMS.Application.Models;
 using AFMS.App.Commands;
+using AFMS.App.Services;
 
 namespace AFMS.App.ViewModels;
 
@@ -74,7 +75,7 @@ public sealed class LoginViewModel : ObservableObject
     }
 
     private void HandleException(Exception exception) =>
-        ErrorMessage = $"Login failed: {exception.Message}";
+        ErrorMessage = UserFacingError.From(exception);
 
     private void RaiseCanExecuteChanged() => ((AsyncRelayCommand)LoginCommand).RaiseCanExecuteChanged();
 }

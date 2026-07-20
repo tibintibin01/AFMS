@@ -1,0 +1,106 @@
+<UserControl x:Class="AFMS.App.Views.OperationalTransactionsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="28,24,28,22">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+
+        <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Accountability Transactions" Style="{StaticResource PageTitleStyle}"/>
+                <TextBlock Text="Record usage, transfer unused forms, process returns, and manage accountable-form exceptions." Style="{StaticResource PageSubtitleStyle}"/>
+            </StackPanel>
+            <Button Grid.Column="1" Content="Refresh records" Command="{Binding RefreshCommand}" Style="{StaticResource SecondaryButtonStyle}" VerticalAlignment="Center" Margin="16,0,0,0"/>
+        </Grid>
+
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,18,0,16" Padding="18,14">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal"><Border Width="30" Height="30" CornerRadius="7" Background="{StaticResource NavyLightBrush}"><TextBlock Text="&#xE8AB;" FontFamily="Segoe Fluent Icons" Foreground="{StaticResource NavyBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Margin="10,0,0,0"><TextBlock Text="Accountable range" FontWeight="SemiBold"/><TextBlock Text="Choose the collector and unused range that this transaction affects." Foreground="{StaticResource MutedTextBrush}" FontSize="11"/></StackPanel></StackPanel>
+                    <TextBlock Grid.Column="1" Text="Required for all transaction types" Foreground="{StaticResource MutedTextBrush}" FontSize="11" VerticalAlignment="Center"/>
+                </Grid>
+                <WrapPanel Margin="0,10,0,0">
+                    <StackPanel Width="190" Margin="0,0,10,7"><TextBlock Text="Current collector" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,5"/><ComboBox ItemsSource="{Binding Collectors}" SelectedItem="{Binding SourceCollector}"/></StackPanel>
+                    <StackPanel Width="255" Margin="0,0,10,7"><TextBlock Text="Owned unused range" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,5"/><ComboBox ItemsSource="{Binding OwnedRanges}" SelectedItem="{Binding SelectedRange}" DisplayMemberPath="Display"/></StackPanel>
+                    <StackPanel Width="112" Margin="0,0,10,7"><TextBlock Text="Beginning" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,5"/><TextBox Text="{Binding BeginningSerial}"/></StackPanel>
+                    <StackPanel Width="112" Margin="0,0,10,7"><TextBlock Text="Ending" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,5"/><TextBox Text="{Binding EndingSerial}"/></StackPanel>
+                    <StackPanel Width="145" Margin="0,0,10,7"><TextBlock Text="Transaction date" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,5"/><DatePicker SelectedDate="{Binding TransactionDate}"/></StackPanel>
+                    <StackPanel Width="250" Margin="0,0,10,7"><TextBlock Text="Reason or source reference" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,5"/><TextBox Text="{Binding Reason, UpdateSourceTrigger=PropertyChanged}" ToolTip="Also used as the required reason for rejection or reversal."/></StackPanel>
+                    <Button Content="Load owned ranges" Command="{Binding RefreshRangesCommand}" Style="{StaticResource SecondaryButtonStyle}" VerticalAlignment="Bottom" Margin="0,0,0,7"/>
+                </WrapPanel>
+            </StackPanel>
+        </Border>
+
+        <TabControl Grid.Row="2">
+            <TabItem Header="Usage" Visibility="{Binding CanUsage, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <Grid Margin="20" MinWidth="780">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="320"/><ColumnDefinition Width="18"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Border Background="#F7F9FB" CornerRadius="8" Padding="18">
+                            <StackPanel>
+                                <TextBlock Text="New usage report" Style="{StaticResource SectionTitleStyle}"/>
+                                <TextBlock Text="Add one or more continuous serial ranges before saving the draft." Style="{StaticResource PageSubtitleStyle}"/>
+                                <TextBlock Text="Amount collected (optional)" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding AmountCollected}"/>
+                                <TextBlock Text="Remarks" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Remarks}" AcceptsReturn="True" Height="70" VerticalContentAlignment="Top"/>
+                                <WrapPanel Margin="0,12,0,0"><Button Content="Add serial range" Command="{Binding AddUsageRangeCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0"/><Button Content="Clear" Command="{Binding ClearUsageRangesCommand}" Style="{StaticResource SecondaryButtonStyle}"/></WrapPanel>
+                                <DataGrid ItemsSource="{Binding PendingUsageRanges}" Height="120" Margin="0,10,0,0"><DataGrid.Columns><DataGridTextColumn Header="Beginning" Binding="{Binding BeginningSerial}" Width="*"/><DataGridTextColumn Header="Ending" Binding="{Binding EndingSerial}" Width="*"/></DataGrid.Columns></DataGrid>
+                                <Button Content="Save usage draft" Command="{Binding SaveUsageCommand}" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch" Margin="0,12,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Grid Grid.Column="2">
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel><TextBlock Text="Usage reports" Style="{StaticResource SectionTitleStyle}"/><TextBlock Text="Select a report to finalize or reverse it." Style="{StaticResource PageSubtitleStyle}"/></StackPanel>
+                            <Grid Grid.Row="1" Margin="0,13,0,0"><DataGrid ItemsSource="{Binding UsageReports}" SelectedItem="{Binding SelectedUsage}"><DataGrid.Columns><DataGridTextColumn Header="Reference" Binding="{Binding ReferenceNumber}" Width="145"/><DataGridTextColumn Header="Date" Binding="{Binding ReportingDate, StringFormat={}{0:MMM dd, yyyy}}" Width="105"/><DataGridTextColumn Header="Collector" Binding="{Binding Collector}" Width="*" MinWidth="130"/><DataGridTextColumn Header="Form" Binding="{Binding FormType}" Width="110"/><DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="58"/><DataGridTemplateColumn Header="Status" Width="95"><DataGridTemplateColumn.CellTemplate><DataTemplate><Border Background="{StaticResource NavyLightBrush}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left"><TextBlock Text="{Binding Status}" Foreground="{StaticResource NavyBrush}" FontSize="11" FontWeight="SemiBold"/></Border></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns></DataGrid><TextBlock Text="No usage reports yet. Saved drafts and finalized reports will appear here." Style="{StaticResource EmptyStateTextStyle}"/></Grid>
+                            <WrapPanel Grid.Row="2" Margin="0,12,0,0" HorizontalAlignment="Right"><Button Content="Finalize selected" Command="{Binding FinalizeUsageCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0"/><Button Content="Reverse…" Command="{Binding ReverseUsageCommand}" Style="{StaticResource DangerButtonStyle}"/></WrapPanel>
+                        </Grid>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Transfers" Visibility="{Binding CanTransfer, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <Grid Margin="20" MinWidth="780">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="320"/><ColumnDefinition Width="18"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Border Background="#F7F9FB" CornerRadius="8" Padding="18"><StackPanel><TextBlock Text="Transfer unused range" Style="{StaticResource SectionTitleStyle}"/><TextBlock Text="Move accountability without changing the original issuance history." Style="{StaticResource PageSubtitleStyle}"/><TextBlock Text="Receiving collector" Style="{StaticResource FieldLabelStyle}"/><ComboBox ItemsSource="{Binding Collectors}" SelectedItem="{Binding TargetCollector}"/><TextBlock Text="Released or approved by" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Person}"/><TextBlock Text="Remarks" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Remarks}" AcceptsReturn="True" Height="70" VerticalContentAlignment="Top"/><Button Content="Save transfer draft" Command="{Binding SaveTransferCommand}" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch" Margin="0,14,0,0"/></StackPanel></Border>
+                        <Grid Grid.Column="2"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><StackPanel><TextBlock Text="Transfer requests" Style="{StaticResource SectionTitleStyle}"/><TextBlock Text="Workflow actions apply to the selected transfer." Style="{StaticResource PageSubtitleStyle}"/></StackPanel>
+                            <Grid Grid.Row="1" Margin="0,13,0,0"><DataGrid ItemsSource="{Binding Transfers}" SelectedItem="{Binding SelectedTransfer}"><DataGrid.Columns><DataGridTextColumn Header="Reference" Binding="{Binding ReferenceNumber}" Width="140"/><DataGridTextColumn Header="From" Binding="{Binding FromCollector}" Width="*" MinWidth="110"/><DataGridTextColumn Header="To" Binding="{Binding ToCollector}" Width="*" MinWidth="110"/><DataGridTextColumn Header="Beginning" Binding="{Binding BeginningSerial}" Width="88"/><DataGridTextColumn Header="Ending" Binding="{Binding EndingSerial}" Width="88"/><DataGridTemplateColumn Header="Status" Width="95"><DataGridTemplateColumn.CellTemplate><DataTemplate><Border Background="{StaticResource NavyLightBrush}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left"><TextBlock Text="{Binding Status}" Foreground="{StaticResource NavyBrush}" FontSize="11" FontWeight="SemiBold"/></Border></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns></DataGrid><TextBlock Text="No transfers match the current selection." Style="{StaticResource EmptyStateTextStyle}"/></Grid>
+                            <WrapPanel Grid.Row="2" Margin="0,12,0,0" HorizontalAlignment="Right"><Button Content="Add attachment" Command="{Binding AttachTransferCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0"/><Button Content="Submit" Command="{Binding SubmitTransferCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0"/><Button Content="Approve" Command="{Binding ApproveTransferCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0"/><Button Content="Reject" Command="{Binding RejectTransferCommand}" Style="{StaticResource DangerButtonStyle}" Margin="0,0,8,0"/><Button Content="Finalize" Command="{Binding FinalizeTransferCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0"/><Button Content="Reverse…" Command="{Binding ReverseTransferCommand}" Style="{StaticResource DangerButtonStyle}"/></WrapPanel>
+                        </Grid>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Returns" Visibility="{Binding CanReturn, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <Grid Margin="20" MinWidth="780">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="320"/><ColumnDefinition Width="18"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Border Background="#F7F9FB" CornerRadius="8" Padding="18"><StackPanel><TextBlock Text="Return unused range" Style="{StaticResource SectionTitleStyle}"/><TextBlock Text="Return unused receipts and record their physical disposition." Style="{StaticResource PageSubtitleStyle}"/><TextBlock Text="Disposition" Style="{StaticResource FieldLabelStyle}"/><ComboBox ItemsSource="{Binding ReturnDispositions}" SelectedItem="{Binding Disposition}"/><TextBlock Text="Received by" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Person}"/><TextBlock Text="Remarks" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Remarks}" AcceptsReturn="True" Height="70" VerticalContentAlignment="Top"/><Button Content="Save return draft" Command="{Binding SaveReturnCommand}" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch" Margin="0,14,0,0"/></StackPanel></Border>
+                        <Grid Grid.Column="2"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><StackPanel><TextBlock Text="Return requests" Style="{StaticResource SectionTitleStyle}"/><TextBlock Text="Workflow actions apply to the selected return." Style="{StaticResource PageSubtitleStyle}"/></StackPanel>
+                            <Grid Grid.Row="1" Margin="0,13,0,0"><DataGrid ItemsSource="{Binding Returns}" SelectedItem="{Binding SelectedReturn}"><DataGrid.Columns><DataGridTextColumn Header="Reference" Binding="{Binding ReferenceNumber}" Width="140"/><DataGridTextColumn Header="Collector" Binding="{Binding Collector}" Width="*" MinWidth="120"/><DataGridTextColumn Header="Form" Binding="{Binding FormType}" Width="100"/><DataGridTextColumn Header="Beginning" Binding="{Binding BeginningSerial}" Width="88"/><DataGridTextColumn Header="Ending" Binding="{Binding EndingSerial}" Width="88"/><DataGridTextColumn Header="Disposition" Binding="{Binding Disposition}" Width="145"/><DataGridTemplateColumn Header="Status" Width="90"><DataGridTemplateColumn.CellTemplate><DataTemplate><Border Background="{StaticResource NavyLightBrush}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left"><TextBlock Text="{Binding Status}" Foreground="{StaticResource NavyBrush}" FontSize="11" FontWeight="SemiBold"/></Border></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns></DataGrid><TextBlock Text="No returns match the current selection." Style="{StaticResource EmptyStateTextStyle}"/></Grid>
+                            <WrapPanel Grid.Row="2" Margin="0,12,0,0" HorizontalAlignment="Right"><Button Content="Add attachment" Command="{Binding AttachReturnCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0"/><Button Content="Submit" Command="{Binding SubmitReturnCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0"/><Button Content="Approve" Command="{Binding ApproveReturnCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0"/><Button Content="Reject" Command="{Binding RejectReturnCommand}" Style="{StaticResource DangerButtonStyle}" Margin="0,0,8,0"/><Button Content="Finalize" Command="{Binding FinalizeReturnCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0"/><Button Content="Reverse…" Command="{Binding ReverseReturnCommand}" Style="{StaticResource DangerButtonStyle}"/></WrapPanel>
+                        </Grid>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Exceptions" Visibility="{Binding CanExceptions, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <Grid Margin="20" MinWidth="780">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="320"/><ColumnDefinition Width="18"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Border Background="#F7F9FB" CornerRadius="8" Padding="18"><StackPanel><TextBlock Text="Report an exception" Style="{StaticResource SectionTitleStyle}"/><TextBlock Text="Document lost, spoiled, damaged, cancelled, or invalidated receipts." Style="{StaticResource PageSubtitleStyle}"/><TextBlock Text="Incident type" Style="{StaticResource FieldLabelStyle}"/><ComboBox ItemsSource="{Binding ExceptionTypes}" SelectedItem="{Binding ExceptionType}"/><TextBlock Text="Action taken or approved by" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Person}"/><TextBlock Text="Remarks" Style="{StaticResource FieldLabelStyle}"/><TextBox Text="{Binding Remarks}" AcceptsReturn="True" Height="70" VerticalContentAlignment="Top"/><Button Content="Save exception draft" Command="{Binding SaveExceptionCommand}" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch" Margin="0,14,0,0"/></StackPanel></Border>
+                        <Grid Grid.Column="2"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><StackPanel><TextBlock Text="Reported exceptions" Style="{StaticResource SectionTitleStyle}"/><TextBlock Text="Supervisor approval is required before finalization." Style="{StaticResource PageSubtitleStyle}"/></StackPanel>
+                            <Grid Grid.Row="1" Margin="0,13,0,0"><DataGrid ItemsSource="{Binding Exceptions}" SelectedItem="{Binding SelectedException}"><DataGrid.Columns><DataGridTextColumn Header="Reference" Binding="{Binding ReferenceNumber}" Width="140"/><DataGridTextColumn Header="Incident" Binding="{Binding Type}" Width="95"/><DataGridTextColumn Header="Collector" Binding="{Binding Collector}" Width="*" MinWidth="120"/><DataGridTextColumn Header="Beginning" Binding="{Binding BeginningSerial}" Width="88"/><DataGridTextColumn Header="Ending" Binding="{Binding EndingSerial}" Width="88"/><DataGridTextColumn Header="Approval" Binding="{Binding ApprovalStatus}" Width="90"/><DataGridTemplateColumn Header="Status" Width="90"><DataGridTemplateColumn.CellTemplate><DataTemplate><Border Background="#FFF3DA" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left"><TextBlock Text="{Binding Status}" Foreground="{StaticResource WarningBrush}" FontSize="11" FontWeight="SemiBold"/></Border></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns></DataGrid><TextBlock Text="No exceptions match the current selection." Style="{StaticResource EmptyStateTextStyle}"/></Grid>
+                            <WrapPanel Grid.Row="2" Margin="0,12,0,0" HorizontalAlignment="Right"><Button Content="Add attachment" Command="{Binding AttachExceptionCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0"/><Button Content="Submit" Command="{Binding SubmitExceptionCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0"/><Button Content="Approve" Command="{Binding ApproveExceptionCommand}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0"/><Button Content="Reject" Command="{Binding RejectExceptionCommand}" Style="{StaticResource DangerButtonStyle}" Margin="0,0,8,0"/><Button Content="Finalize" Command="{Binding FinalizeExceptionCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0"/><Button Content="Reverse…" Command="{Binding ReverseExceptionCommand}" Style="{StaticResource DangerButtonStyle}"/></WrapPanel>
+                        </Grid>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+
+        <Grid Grid.Row="3" Margin="0,10,0,0">
+            <ProgressBar IsIndeterminate="True" Height="3" VerticalAlignment="Top" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            <TextBlock Text="{Binding Message}" Style="{StaticResource NotificationTextStyle}" Margin="0,8,0,0"/>
+        </Grid>
+    </Grid>
+</UserControl>

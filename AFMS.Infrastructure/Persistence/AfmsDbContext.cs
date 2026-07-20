@@ -5,11 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AFMS.Infrastructure.Persistence;
 
-public sealed class AfmsDbContext(DbContextOptions<AfmsDbContext> options) : DbContext(options), IUnitOfWork
+public sealed class AfmsDbContext(DbContextOptions<AfmsDbContext> options, IDatabaseOperationCoordinator? coordinator = null) : DbContext(options), IUnitOfWork
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     public DbSet<Collector> Collectors => Set<Collector>();
     public DbSet<Barangay> Barangays => Set<Barangay>();
     public DbSet<AccountableFormType> AccountableFormTypes => Set<AccountableFormType>();
@@ -27,6 +28,11 @@ public sealed class AfmsDbContext(DbContextOptions<AfmsDbContext> options) : DbC
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
     public DbSet<FiscalYear> FiscalYears => Set<FiscalYear>();
+    public DbSet<ReferenceNumberSequence> ReferenceNumberSequences => Set<ReferenceNumberSequence>();
+    public DbSet<AccountabilityRange> AccountabilityRanges => Set<AccountabilityRange>();
+    public DbSet<TransactionAttachment> TransactionAttachments => Set<TransactionAttachment>();
+    public DbSet<FiscalYearSnapshot> FiscalYearSnapshots => Set<FiscalYearSnapshot>();
+    public DbSet<FiscalYearCarryForward> FiscalYearCarryForwards => Set<FiscalYearCarryForward>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -37,13 +43,31 @@ public sealed class AfmsDbContext(DbContextOptions<AfmsDbContext> options) : DbC
     public override int SaveChanges()
     {
         UpdateTimestamps();
-        return base.SaveChanges();
+        EnsureAuditAppendOnly();
+        if (coordinator is null || Database.CurrentTransaction is not null) return base.SaveChanges();
+        var lease = coordinator.EnterWriteAsync().GetAwaiter().GetResult();
+        try { return base.SaveChanges(); }
+        finally { lease.DisposeAsync().AsTask().GetAwaiter().GetResult(); }
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        return SaveProtectedAsync(cancellationToken);
+    }
+
+    private async Task<int> SaveProtectedAsync(CancellationToken cancellationToken)
+    {
         UpdateTimestamps();
-        return base.SaveChangesAsync(cancellationToken);
+        EnsureAuditAppendOnly();
+        if (coordinator is null || Database.CurrentTransaction is not null) return await base.SaveChangesAsync(cancellationToken);
+        await using var lease = await coordinator.EnterWriteAsync(cancellationToken);
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void EnsureAuditAppendOnly()
+    {
+        if (ChangeTracker.Entries<AuditLog>().Any(x => x.State is EntityState.Modified or EntityState.Deleted))
+            throw new InvalidOperationException("Audit records are append-only and cannot be edited or deleted.");
     }
 
     private void UpdateTimestamps()
