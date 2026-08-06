@@ -1,5 +1,6 @@
 using System.Windows.Input;
 using AFMS.App.Commands;
+using AFMS.App.Services;
 using AFMS.Core;
 
 namespace AFMS.App.ViewModels;
@@ -84,17 +85,32 @@ public sealed class FirstRunViewModel : PageViewModelBase
 public sealed class SignInViewModel : PageViewModelBase
 {
     private readonly IAuthenticationService _auth;
+    private readonly ISignInPreferences _preferences;
     private string _username = string.Empty;
     private string _password = string.Empty;
+    private bool _rememberUsername;
+    private bool _showPassword;
 
-    public SignInViewModel(IAuthenticationService auth)
+    public SignInViewModel(IAuthenticationService auth, ISignInPreferences preferences)
     {
         _auth = auth;
+        _preferences = preferences;
+
+        // Prefill from last time, and tick the box so it stays remembered.
+        if (preferences.RememberedUsername is { } remembered)
+        {
+            _username = remembered;
+            _rememberUsername = true;
+        }
+
         SignInCommand = new AsyncRelayCommand(
             SignInAsync, CanSignIn, exception => ReportError(Services.UserFacingError.From(exception)));
     }
 
     public event Action? SignedIn;
+
+    /// <summary>Raised when the password should be wiped from the boxes on screen.</summary>
+    public event Action? PasswordCleared;
 
     public string Username
     {
@@ -108,6 +124,24 @@ public sealed class SignInViewModel : PageViewModelBase
         set { if (SetProperty(ref _password, value)) Refresh(); }
     }
 
+    public bool RememberUsername
+    {
+        get => _rememberUsername;
+        set => SetProperty(ref _rememberUsername, value);
+    }
+
+    /// <summary>Swaps the password box for a plain text one so the typing can be checked.</summary>
+    public bool ShowPassword
+    {
+        get => _showPassword;
+        set
+        {
+            if (SetProperty(ref _showPassword, value)) RaisePropertyChanged(nameof(RevealTooltip));
+        }
+    }
+
+    public string RevealTooltip => ShowPassword ? "Hide password" : "Show password";
+
     public ICommand SignInCommand { get; }
 
     private bool CanSignIn() =>
@@ -117,16 +151,23 @@ public sealed class SignInViewModel : PageViewModelBase
     {
         IsBusy = true;
         Message = null;
+        Refresh();
         try
         {
             var result = await _auth.SignInAsync(new SignInRequest(Username, Password));
+
+            // Clear the password either way so it does not linger in memory or on screen.
             Password = string.Empty;
+            PasswordCleared?.Invoke();
 
             if (!result.Succeeded)
             {
                 ReportError(result.ErrorMessage ?? "Sign-in failed.");
                 return;
             }
+
+            if (RememberUsername) _preferences.Remember(Username);
+            else _preferences.Forget();
 
             SignedIn?.Invoke();
         }

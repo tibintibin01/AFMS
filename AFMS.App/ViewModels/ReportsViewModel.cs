@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Windows.Input;
 using AFMS.App.Commands;
 using AFMS.App.Services;
@@ -39,9 +40,17 @@ public sealed class ReportsViewModel : PageViewModelBase
 
     public ObservableCollection<ItemOption> Items { get; } = [];
     public ObservableCollection<RecipientOption> People { get; } = [];
-    public ObservableCollection<PreviewRow> PreviewRows { get; } = [];
-    public ObservableCollection<string> PreviewTotals { get; } = [];
+    public ObservableCollection<TotalDisplay> PreviewTotals { get; } = [];
     public IReadOnlyList<ReportOption> Reports => ReportOption.All;
+
+    /// <summary>
+    /// A real table for the DataGrid to bind to, so the preview lines up in proper
+    /// columns instead of one long piped-together string.
+    /// </summary>
+    public DataTable PreviewTable { get; } = new();
+
+    /// <summary>One report total, pre-formatted with its own number format (counts vs money).</summary>
+    public sealed record TotalDisplay(string Label, string Value);
 
     public ICommand PreviewCommand { get; }
     public ICommand ExportPdfCommand { get; }
@@ -87,7 +96,6 @@ public sealed class ReportsViewModel : PageViewModelBase
             ((AsyncRelayCommand)ExportExcelCommand).RaiseCanExecuteChanged();
             RaisePropertyChanged(nameof(HasPreview));
             RaisePropertyChanged(nameof(PreviewHeading));
-            RaisePropertyChanged(nameof(PreviewColumnHeaders));
         }
     }
 
@@ -96,10 +104,6 @@ public sealed class ReportsViewModel : PageViewModelBase
     public string PreviewHeading => Preview is null
         ? string.Empty
         : $"{Preview.Title} - {Preview.Rows.Count:N0} row(s)";
-
-    public string PreviewColumnHeaders => Preview is null
-        ? string.Empty
-        : string.Join("  |  ", Preview.Columns.Select(column => column.Header));
 
     public Task InitializeAsync() => RunAsync(async () =>
     {
@@ -127,23 +131,42 @@ public sealed class ReportsViewModel : PageViewModelBase
             NeedsPerson && SelectedPerson is { } person && person.Id != Guid.Empty ? person.Id : null));
 
         Preview = document;
-
-        PreviewRows.Clear();
-        foreach (var row in document.Rows.Take(500))
-        {
-            PreviewRows.Add(new PreviewRow(string.Join("  |  ", row.Values.Select(Format))));
-        }
+        FillPreviewTable(document);
 
         PreviewTotals.Clear();
         foreach (var total in document.Totals)
-        {
-            PreviewTotals.Add($"{total.Label}: {total.Value.ToString(total.Format)}");
-        }
+            PreviewTotals.Add(new TotalDisplay(total.Label, total.Value.ToString(total.Format)));
 
-        ReportSuccess(document.Rows.Count > 500
-            ? $"Showing the first 500 of {document.Rows.Count:N0} rows. Export to see them all."
+        const int previewLimit = 500;
+        ReportSuccess(document.Rows.Count > previewLimit
+            ? $"Showing the first {previewLimit:N0} of {document.Rows.Count:N0} rows. Export to see them all."
             : $"{document.Rows.Count:N0} row(s) ready to export.");
     });
+
+    /// <summary>
+    /// Rebuilds the preview table's columns to match the report, then fills it. A
+    /// DataTable lets the DataGrid line values up under their own header instead of
+    /// running them together as one string.
+    /// </summary>
+    private void FillPreviewTable(ReportDocument document)
+    {
+        const int previewLimit = 500;
+
+        PreviewTable.Clear();
+        PreviewTable.Columns.Clear();
+        foreach (var column in document.Columns)
+            PreviewTable.Columns.Add(column.Header, typeof(string));
+
+        foreach (var row in document.Rows.Take(previewLimit))
+        {
+            var values = new string[document.Columns.Count];
+            for (var index = 0; index < document.Columns.Count; index++)
+                values[index] = Format(index < row.Values.Count ? row.Values[index] : null);
+            PreviewTable.Rows.Add(values);
+        }
+
+        RaisePropertyChanged(nameof(PreviewTable));
+    }
 
     private async Task ExportAsync(bool pdf) => await RunAsync(async () =>
     {
@@ -168,8 +191,6 @@ public sealed class ReportsViewModel : PageViewModelBase
         _ => value.ToString() ?? string.Empty
     };
 }
-
-public sealed record PreviewRow(string Text);
 
 public sealed record ReportOption(string Label, ReportKind Kind, string Description)
 {

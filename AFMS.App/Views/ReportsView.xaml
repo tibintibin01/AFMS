@@ -76,51 +76,47 @@
                 </StackPanel>
             </Border>
 
-            <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+            <Border Grid.Column="2" Style="{StaticResource CardStyle}" Padding="20,20,20,16">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <TextBlock Text="{Binding PreviewHeading}" Style="{StaticResource SectionTitleStyle}"
-                               TextWrapping="Wrap" />
+                               TextWrapping="Wrap" Margin="0,0,0,10" />
 
-                    <Border Grid.Row="1" Background="{StaticResource NavyBrush}" CornerRadius="6"
-                            Padding="10,7" Margin="0,10,0,0"
-                            Visibility="{Binding HasPreview, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <TextBlock Text="{Binding PreviewColumnHeaders}" Foreground="White"
-                                   FontFamily="Consolas, Cascadia Mono, Courier New" FontSize="11"
-                                   FontWeight="Bold" TextTrimming="CharacterEllipsis" />
-                    </Border>
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding PreviewTable}"
+                              AutoGenerateColumns="True" FrozenColumnCount="1"
+                              Visibility="{Binding HasPreview, Converter={StaticResource BooleanToVisibilityConverter}}"
+                              AutomationProperties.Name="Report preview" />
 
-                    <ListBox Grid.Row="2" Margin="0,6,0,0" ItemsSource="{Binding PreviewRows}"
-                             BorderThickness="0" Background="Transparent"
-                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                             VirtualizingPanel.IsVirtualizing="True"
-                             VirtualizingPanel.VirtualizationMode="Recycling"
-                             AutomationProperties.Name="Report preview">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Text}" FontSize="11"
-                                           FontFamily="Consolas, Cascadia Mono, Courier New" />
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-
-                    <TextBlock Grid.Row="2" IsHitTestVisible="False" TextAlignment="Center" TextWrapping="Wrap"
+                    <TextBlock Grid.Row="1" IsHitTestVisible="False" TextAlignment="Center" TextWrapping="Wrap"
                                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20"
                                Foreground="{StaticResource MutedTextBrush}"
                                Text="Choose a report on the left, then press 'Show the report'."
                                Visibility="{Binding HasPreview, Converter={StaticResource BooleanToCollapsedConverter}}" />
 
-                    <ItemsControl Grid.Row="3" ItemsSource="{Binding PreviewTotals}" Margin="0,10,0,0">
+                    <!-- Totals, right-aligned in a row under the table instead of stacked text -->
+                    <ItemsControl Grid.Row="2" ItemsSource="{Binding PreviewTotals}" Margin="0,14,0,0"
+                                  Visibility="{Binding HasPreview, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding}" FontWeight="SemiBold"
-                                           Foreground="{StaticResource NavyBrush}" Margin="0,2,0,0" />
+                                <Border Background="{StaticResource NavyLightBrush}" CornerRadius="7"
+                                        Padding="12,8" Margin="8,0,0,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Label}" Foreground="{StaticResource MutedTextBrush}"
+                                                   FontSize="12" Margin="0,0,8,0" />
+                                        <TextBlock FontWeight="Bold" Foreground="{StaticResource NavyBrush}"
+                                                   Text="{Binding Value}" />
+                                    </StackPanel>
+                                </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

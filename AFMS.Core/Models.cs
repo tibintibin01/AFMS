@@ -54,6 +54,10 @@ public sealed record SaveItemRequest(
 public sealed record ItemOption(Guid Id, string Code, string Name, string Unit, bool TracksSerials, long OnHand)
 {
     public string Display => $"{Code} - {Name}";
+
+    // A record's generated ToString prints all its fields, which shows up as raw
+    // text like "ItemOption { Id = 0000... }" anywhere a control falls back to it.
+    public override string ToString() => Display;
 }
 
 // ---------------------------------------------------------------------------
@@ -84,6 +88,9 @@ public sealed record SaveRecipientRequest(
 public sealed record RecipientOption(Guid Id, string Code, string Name)
 {
     public string Display => $"{Code} - {Name}";
+
+    // See the note on ItemOption.ToString.
+    public override string ToString() => Display;
 }
 
 // ---------------------------------------------------------------------------

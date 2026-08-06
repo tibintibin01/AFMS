@@ -80,8 +80,9 @@
     </Style>
 
     <Style TargetType="TextBox">
-        <Setter Property="MinHeight" Value="42" />
-        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="Padding" Value="9,5" />
+        <Setter Property="FontSize" Value="12.5" />
         <Setter Property="Background" Value="White" />
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
         <Setter Property="BorderBrush" Value="#C9D4E0" />
@@ -92,11 +93,11 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
-                    <Border x:Name="InputBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7">
+                    <Border x:Name="InputBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
                         <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" />
                     </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="InputBorder" Property="BorderBrush" Value="{StaticResource NavyBrush}" /><Setter TargetName="InputBorder" Property="BorderThickness" Value="2" /></Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="InputBorder" Property="BorderBrush" Value="{StaticResource NavyBrush}" /><Setter TargetName="InputBorder" Property="BorderThickness" Value="1.5" /></Trigger>
                         <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="InputBorder" Property="BorderBrush" Value="#92A6BA" /></Trigger>
                         <Trigger Property="IsEnabled" Value="False"><Setter TargetName="InputBorder" Property="Background" Value="#F0F3F6" /><Setter Property="Foreground" Value="#8A99A8" /></Trigger>
                         <Trigger Property="Validation.HasError" Value="True"><Setter TargetName="InputBorder" Property="BorderBrush" Value="{StaticResource DangerBrush}" /></Trigger>
@@ -106,8 +107,9 @@
         </Setter>
     </Style>
     <Style TargetType="PasswordBox">
-        <Setter Property="MinHeight" Value="42" />
-        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="Padding" Value="9,5" />
+        <Setter Property="FontSize" Value="12.5" />
         <Setter Property="Background" Value="White" />
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
         <Setter Property="BorderBrush" Value="#C9D4E0" />
@@ -116,11 +118,11 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="PasswordBox">
-                    <Border x:Name="InputBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7">
+                    <Border x:Name="InputBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
                         <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" />
                     </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="InputBorder" Property="BorderBrush" Value="{StaticResource NavyBrush}" /><Setter TargetName="InputBorder" Property="BorderThickness" Value="2" /></Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="InputBorder" Property="BorderBrush" Value="{StaticResource NavyBrush}" /><Setter TargetName="InputBorder" Property="BorderThickness" Value="1.5" /></Trigger>
                         <Trigger Property="IsEnabled" Value="False"><Setter TargetName="InputBorder" Property="Background" Value="#F0F3F6" /></Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -133,8 +135,9 @@
         <Setter Property="Foreground" Value="{StaticResource NavyBrush}" />
         <Setter Property="BorderBrush" Value="#C9D4E0" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Padding" Value="15,9" />
-        <Setter Property="MinHeight" Value="38" />
+        <Setter Property="Padding" Value="13,6" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="FontSize" Value="12.5" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -142,13 +145,13 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                    <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" RecognizesAccessKey="True" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ButtonBorder" Property="Background" Value="{StaticResource HoverBrush}" /><Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#AAB9C8" /></Trigger>
                         <Trigger Property="IsPressed" Value="True"><Setter TargetName="ButtonBorder" Property="Background" Value="#E4EAF0" /></Trigger>
-                        <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{StaticResource GoldBrush}" /><Setter TargetName="ButtonBorder" Property="BorderThickness" Value="2" /></Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{StaticResource GoldBrush}" /><Setter TargetName="ButtonBorder" Property="BorderThickness" Value="1.5" /></Trigger>
                         <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ButtonBorder" Property="Opacity" Value="0.45" /><Setter Property="Cursor" Value="Arrow" /></Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -160,17 +163,17 @@
         <Setter Property="Background" Value="{StaticResource NavyBrush}" />
         <Setter Property="Foreground" Value="White" />
         <Setter Property="BorderBrush" Value="{StaticResource NavyBrush}" />
-        <Setter Property="MinHeight" Value="42" />
+        <Setter Property="MinHeight" Value="32" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7" Padding="{TemplateBinding Padding}">
+                    <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ButtonBorder" Property="Background" Value="#22527E" /><Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#22527E" /></Trigger>
                         <Trigger Property="IsPressed" Value="True"><Setter TargetName="ButtonBorder" Property="Background" Value="{StaticResource NavyDarkBrush}" /></Trigger>
-                        <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{StaticResource GoldBrush}" /><Setter TargetName="ButtonBorder" Property="BorderThickness" Value="2" /></Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{StaticResource GoldBrush}" /><Setter TargetName="ButtonBorder" Property="BorderThickness" Value="1.5" /></Trigger>
                         <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ButtonBorder" Property="Opacity" Value="0.45" /></Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -183,7 +186,42 @@
         <Setter Property="Background" Value="#FFF8F7" />
     </Style>
     <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Width" Value="40" /><Setter Property="Height" Value="40" /><Setter Property="Padding" Value="0" />
+        <Setter Property="Width" Value="32" /><Setter Property="Height" Value="32" /><Setter Property="Padding" Value="0" />
+    </Style>
+
+    <!-- Small borderless eye toggle that sits inside the password field. -->
+    <Style x:Key="RevealToggleStyle" TargetType="ToggleButton">
+        <Setter Property="Width" Value="28" />
+        <Setter Property="Height" Value="26" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="Chip" Background="{TemplateBinding Background}" CornerRadius="5"
+                            BorderThickness="1" BorderBrush="Transparent">
+                        <TextBlock x:Name="Glyph" Text="&#xE7B3;" FontFamily="Segoe Fluent Icons"
+                                   FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Foreground="{TemplateBinding Foreground}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!-- Crossed-out eye once the password is visible. -->
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Glyph" Property="Text" Value="&#xED1A;" />
+                            <Setter Property="Foreground" Value="{StaticResource NavyBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chip" Property="Background" Value="{StaticResource HoverBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Chip" Property="BorderBrush" Value="{StaticResource GoldBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style x:Key="NavigationToggleButtonStyle" TargetType="ToggleButton">
@@ -221,25 +259,25 @@
         <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBoxItem"><Border x:Name="ItemBorder" Background="Transparent" CornerRadius="5" Padding="{TemplateBinding Padding}"><ContentPresenter /></Border><ControlTemplate.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource NavyLightBrush}" /></Trigger><Trigger Property="IsSelected" Value="True"><Setter TargetName="ItemBorder" Property="Background" Value="#DCE9F5" /><Setter Property="FontWeight" Value="SemiBold" /></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
     </Style>
     <Style TargetType="ComboBox">
-        <Setter Property="MinHeight" Value="42" /><Setter Property="Background" Value="White" /><Setter Property="Foreground" Value="{StaticResource TextBrush}" /><Setter Property="BorderBrush" Value="#C9D4E0" /><Setter Property="BorderThickness" Value="1" /><Setter Property="Padding" Value="11,0" /><Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="MinHeight" Value="32" /><Setter Property="FontSize" Value="12.5" /><Setter Property="Background" Value="White" /><Setter Property="Foreground" Value="{StaticResource TextBrush}" /><Setter Property="BorderBrush" Value="#C9D4E0" /><Setter Property="BorderThickness" Value="1" /><Setter Property="Padding" Value="9,0" /><Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBox">
                     <Grid x:Name="Root">
-                        <Border x:Name="InputBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7" />
+                        <Border x:Name="InputBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" />
                         <ToggleButton x:Name="DropDownToggle" Background="Transparent" BorderThickness="0" Focusable="False" IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" ClickMode="Press">
                             <ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Border Background="Transparent" /></ControlTemplate></ToggleButton.Template>
                         </ToggleButton>
-                        <ContentPresenter Margin="11,0,38,0" VerticalAlignment="Center" HorizontalAlignment="Left" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" />
-                        <Path Data="M 0 0 L 4 4 L 8 0" Stroke="#5E7185" StrokeThickness="1.5" HorizontalAlignment="Right" Margin="0,0,14,0" VerticalAlignment="Center" IsHitTestVisible="False" />
+                        <ContentPresenter Margin="9,0,30,0" VerticalAlignment="Center" HorizontalAlignment="Left" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" />
+                        <Path Data="M 0 0 L 4 4 L 8 0" Stroke="#5E7185" StrokeThickness="1.5" HorizontalAlignment="Right" Margin="0,0,12,0" VerticalAlignment="Center" IsHitTestVisible="False" />
                         <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" PopupAnimation="Fade" Focusable="False">
-                            <Border MinWidth="{Binding ActualWidth, ElementName=Root}" MaxHeight="320" Margin="0,4,0,0" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="7" Effect="{StaticResource CardShadow}">
+                            <Border MinWidth="{Binding ActualWidth, ElementName=Root}" MaxHeight="320" Margin="0,4,0,0" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="6" Effect="{StaticResource CardShadow}">
                                 <ScrollViewer Margin="2" SnapsToDevicePixels="True"><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" /></ScrollViewer>
                             </Border>
                         </Popup>
                     </Grid>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="InputBorder" Property="BorderBrush" Value="{StaticResource NavyBrush}" /><Setter TargetName="InputBorder" Property="BorderThickness" Value="2" /></Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="InputBorder" Property="BorderBrush" Value="{StaticResource NavyBrush}" /><Setter TargetName="InputBorder" Property="BorderThickness" Value="1.5" /></Trigger>
                         <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="InputBorder" Property="BorderBrush" Value="#92A6BA" /></Trigger>
                         <Trigger Property="IsEnabled" Value="False"><Setter TargetName="InputBorder" Property="Background" Value="#F0F3F6" /><Setter Property="Opacity" Value="0.65" /></Trigger>
                     </ControlTemplate.Triggers>
@@ -250,7 +288,7 @@
 
     <Style TargetType="DatePickerTextBox" BasedOn="{StaticResource {x:Type TextBox}}" />
     <Style TargetType="DatePicker">
-        <Setter Property="MinHeight" Value="42" /><Setter Property="MinWidth" Value="150" /><Setter Property="Background" Value="White" /><Setter Property="BorderBrush" Value="#C9D4E0" /><Setter Property="BorderThickness" Value="1" /><Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="MinHeight" Value="32" /><Setter Property="MinWidth" Value="130" /><Setter Property="FontSize" Value="12.5" /><Setter Property="Background" Value="White" /><Setter Property="BorderBrush" Value="#C9D4E0" /><Setter Property="BorderThickness" Value="1" /><Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
 
     <Style TargetType="CheckBox">

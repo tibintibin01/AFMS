@@ -3,38 +3,60 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:views="clr-namespace:AFMS.App.Views"
         Title="Sign in to AFMS Inventory"
-        Width="860" Height="540" MinWidth="720" MinHeight="500"
+        Width="880" Height="560" MinWidth="760" MinHeight="520"
         WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="5*" />
+            <ColumnDefinition Width="5*" MinWidth="300" />
             <ColumnDefinition Width="6*" />
         </Grid.ColumnDefinitions>
 
         <views:BrandPanel />
 
         <Border Grid.Column="1" Background="White">
-            <StackPanel Margin="56" VerticalAlignment="Center" MaxWidth="370">
-                <TextBlock Text="Welcome back" FontSize="28" FontWeight="SemiBold" />
+            <StackPanel Margin="52" VerticalAlignment="Center" MaxWidth="360">
+                <TextBlock Text="Welcome back" FontSize="26" FontWeight="SemiBold" />
                 <TextBlock Text="Sign in to open your inventory records."
-                           Foreground="{StaticResource MutedTextBrush}" FontSize="14" Margin="0,7,0,28" />
+                           Foreground="{StaticResource MutedTextBrush}" FontSize="13" Margin="0,6,0,26" />
 
-                <Label Content="_Username" Target="{Binding ElementName=UsernameBox}" Padding="0,0,0,6"
-                       FontWeight="SemiBold" />
+                <Label Content="_Username" Target="{Binding ElementName=UsernameBox}"
+                       Padding="0,0,0,5" FontWeight="SemiBold" FontSize="12" />
                 <TextBox x:Name="UsernameBox" MaxLength="100"
                          Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
                          AutomationProperties.Name="Username" />
 
-                <Label Content="_Password" Target="{Binding ElementName=PasswordBox}" Padding="0,17,0,6"
-                       FontWeight="SemiBold" />
-                <PasswordBox x:Name="PasswordBox" MaxLength="128" PasswordChanged="OnPasswordChanged"
-                             AutomationProperties.Name="Password" />
+                <Label Content="_Password" Target="{Binding ElementName=PasswordBox}"
+                       Padding="0,14,0,5" FontWeight="SemiBold" FontSize="12" />
+
+                <!--
+                  A PasswordBox cannot show its own text, so a plain TextBox sits behind it
+                  and the eye toggle swaps which one is visible. Both feed the same property.
+                -->
+                <Grid>
+                    <PasswordBox x:Name="PasswordBox" MaxLength="128" Padding="9,5,34,5"
+                                 PasswordChanged="OnPasswordChanged"
+                                 AutomationProperties.Name="Password" />
+                    <TextBox x:Name="PasswordPlainBox" MaxLength="128" Padding="9,5,34,5"
+                             Visibility="Collapsed" TextChanged="OnPasswordPlainChanged"
+                             AutomationProperties.Name="Password, visible" />
+                    <ToggleButton x:Name="RevealToggle" Style="{StaticResource RevealToggleStyle}"
+                                  HorizontalAlignment="Right" Margin="0,0,4,0"
+                                  IsChecked="{Binding ShowPassword}"
+                                  Checked="OnRevealChanged" Unchecked="OnRevealChanged"
+                                  ToolTip="{Binding RevealTooltip}"
+                                  AutomationProperties.Name="Show or hide the password" />
+                </Grid>
+
+                <CheckBox Content="Remember my username" Margin="0,16,0,0"
+                          IsChecked="{Binding RememberUsername}"
+                          ToolTip="Only the username is saved on this computer. The password never is."
+                          AutomationProperties.Name="Remember my username" />
 
                 <TextBlock Text="{Binding Message}" Foreground="{StaticResource DangerBrush}"
-                           TextWrapping="Wrap" MinHeight="38" Margin="0,14,0,6" />
+                           TextWrapping="Wrap" MinHeight="34" Margin="0,14,0,4" />
 
                 <Button Content="Sign in" Command="{Binding SignInCommand}"
-                        Style="{StaticResource PrimaryButtonStyle}" IsDefault="True" />
+                        Style="{StaticResource PrimaryButtonStyle}" IsDefault="True" MinHeight="36" />
             </StackPanel>
         </Border>
     </Grid>

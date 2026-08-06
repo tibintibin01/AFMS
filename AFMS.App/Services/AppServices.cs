@@ -126,12 +126,11 @@ public sealed class JsonStarterDataProvider : IStarterDataProvider
 
     public async Task<StarterData?> GetAsync(CancellationToken cancellationToken = default)
     {
-        var path = Path.Combine(AppContext.BaseDirectory, "starter-data.json");
-        if (!File.Exists(path)) return null;
-
         try
         {
-            await using var stream = File.OpenRead(path);
+            await using var stream = OpenStarterData();
+            if (stream is null) return null;
+
             var file = await JsonSerializer.DeserializeAsync<StarterFile>(stream, Options, cancellationToken);
             if (file is null || string.IsNullOrWhiteSpace(file.Version)) return null;
 
@@ -156,6 +155,27 @@ public sealed class JsonStarterDataProvider : IStarterDataProvider
             Log.Warning(exception, "starter-data.json could not be read and was skipped");
             return null;
         }
+    }
+
+    /// <summary>
+    /// Prefers a starter-data.json sitting next to the program, so the office can
+    /// edit it, and falls back to the copy embedded in the exe when there is none.
+    /// </summary>
+    private static Stream? OpenStarterData()
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, "starter-data.json");
+        if (File.Exists(path))
+        {
+            Log.Information("Reading starter data from {Path}", path);
+            return File.OpenRead(path);
+        }
+
+        var embedded = typeof(JsonStarterDataProvider).Assembly
+            .GetManifestResourceStream("starter-data.json");
+        if (embedded is not null)
+            Log.Information("No starter-data.json beside the program; using the built-in copy");
+
+        return embedded;
     }
 
     private sealed class StarterFile

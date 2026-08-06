@@ -19,7 +19,9 @@ OUT = ROOT / "output" / "manual"
 ASSETS = OUT / "assets"
 OUT.mkdir(parents=True, exist_ok=True)
 ASSETS.mkdir(parents=True, exist_ok=True)
-DOCX_PATH = OUT / "AFMS_User_Manual_v1.0.docx"
+MANUAL_VERSION = "1.2"
+ISSUE_DATE = "20 July 2026"
+DOCX_PATH = OUT / f"AFMS_User_Manual_v{MANUAL_VERSION}.docx"
 
 NAVY = "173B5E"
 NAVY_DARK = "102D49"
@@ -199,6 +201,54 @@ def draw_assets():
     d.text((365, 287), "Municipal Treasury Office", font=font(regular, 29), fill="#D9A83E")
     cover.save(ASSETS / "cover_banner.png")
 
+    login = Image.new("RGB", (1600, 900), "#F7F9FB")
+    d = ImageDraw.Draw(login)
+    d.rounded_rectangle((18, 18, 1582, 882), radius=24, fill="white", outline="#DDE4EC", width=3)
+    d.rectangle((18, 18, 730, 882), fill="#0B315A")
+
+    # Scalable document-and-shield identity mark used by the current login screen.
+    d.ellipse((150, 70, 600, 450), outline="#17669F", width=4)
+    d.ellipse((548, 115, 568, 135), fill="#20BEC4")
+    d.rounded_rectangle((240, 105, 485, 395), radius=30, fill="white", outline="#DCEAF4", width=3)
+    d.polygon([(400, 105), (485, 190), (425, 190), (400, 165)], fill="#20BEC4")
+    for y in (190, 255, 320):
+        d.rounded_rectangle((278, y, 325, y + 42), radius=9, fill="#20BEC4")
+        d.line((288, y + 20, 300, y + 31, 316, y + 12), fill="white", width=7, joint="curve")
+        d.rounded_rectangle((348, y + 6, 438, y + 18), radius=6, fill="#10568B")
+        d.rounded_rectangle((348, y + 27, 414, y + 37), radius=5, fill="#10568B")
+    shield = [(485, 300), (545, 330), (605, 300), (605, 390), (590, 438), (545, 475), (500, 438), (485, 390)]
+    d.polygon(shield, fill="white")
+    inner = [(500, 320), (545, 342), (590, 320), (590, 386), (579, 421), (545, 452), (511, 421), (500, 386)]
+    d.polygon(inner, fill="#0B497E")
+    d.polygon([(545, 342), (590, 320), (590, 386), (579, 421), (545, 452)], fill="#168F9C")
+    d.line((520, 385, 540, 405, 574, 366), fill="white", width=11, joint="curve")
+
+    d.text((365, 500), "AFMS", font=font(bold, 64), fill="white", anchor="mm")
+    d.line((240, 545, 490, 545), fill="#20BEC4", width=3)
+    d.text((365, 582), "Accountable Forms", font=font(regular, 29), fill="#E8F2FA", anchor="mm")
+    d.text((365, 620), "Management System", font=font(regular, 29), fill="#E8F2FA", anchor="mm")
+
+    # Draw decorative waves first so the feature row remains fully readable.
+    d.pieslice((-250, 735, 650, 1120), 180, 360, fill="#0D568F")
+    d.pieslice((180, 780, 1050, 1130), 180, 360, fill="#1476B5")
+
+    features = [(190, "Organize"), (365, "Accountable"), (540, "Efficient")]
+    for x, label in features:
+        d.ellipse((x - 25, 685, x + 25, 735), outline="#20BEC4", width=3)
+        d.text((x, 710), "✓", font=font(bold, 23), fill="white", anchor="mm")
+        d.text((x, 762), label, font=font(regular, 20), fill="#EAF5FC", anchor="mm")
+    d.text((365, 840), "Municipal Treasury Office • Offline", font=font(regular, 17), fill="#B8D2E8", anchor="mm")
+
+    d.text((955, 235), "Welcome back", font=font(bold, 47), fill="#17212B")
+    d.text((958, 305), "Sign in with your authorized AFMS account.", font=font(regular, 22), fill="#66778A")
+    d.text((958, 385), "Username", font=font(semibold, 20), fill="#17212B")
+    d.rounded_rectangle((955, 425, 1425, 500), radius=10, fill="white", outline="#C9D4E0", width=3)
+    d.text((958, 555), "Password", font=font(semibold, 20), fill="#17212B")
+    d.rounded_rectangle((955, 595, 1425, 670), radius=10, fill="white", outline="#C9D4E0", width=3)
+    d.rounded_rectangle((955, 735, 1425, 808), radius=10, fill="#173B5E")
+    d.text((1190, 771), "Sign in", font=font(semibold, 23), fill="white", anchor="mm")
+    login.save(ASSETS / "login_screen.png")
+
     shell = Image.new("RGB", (1600, 780), "#F5F7FA")
     d = ImageDraw.Draw(shell)
     d.rounded_rectangle((30, 30, 1570, 750), radius=28, fill="white", outline="#DDE4EC", width=3)
@@ -249,7 +299,7 @@ def draw_assets():
 
     workflow = Image.new("RGB", (1700, 500), "white")
     d = ImageDraw.Draw(workflow)
-    boxes = [(70, "DRAFT", "Editable"), (390, "SUBMITTED", "Awaiting review"), (710, "APPROVED", "Supervisor decision"), (1030, "FINALIZED", "Stock updated")]
+    boxes = [(70, "DRAFT", "Editable"), (390, "SUBMITTED", "Ready for review"), (710, "APPROVED", "Operator confirmed"), (1030, "FINALIZED", "Stock updated")]
     for x, title, sub in boxes:
         d.rounded_rectangle((x, 95, x+255, 275), radius=20, fill="#EAF1F7", outline="#173B5E", width=3)
         d.text((x+127, 155), title, font=font(bold, 25), fill="#173B5E", anchor="mm")
@@ -298,7 +348,7 @@ def configure_document(doc: Document):
         for run in cell.paragraphs[0].runs: set_font(run, size=8.5, color=MUTED, bold=True)
     footer = section.footer
     p = footer.paragraphs[0]; p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = p.add_run("AFMS v1.0  |  Dipaculao, Aurora  |  Page "); set_font(r, size=8.5, color=MUTED)
+    r = p.add_run(f"AFMS v{MANUAL_VERSION}  |  Dipaculao, Aurora  |  Page "); set_font(r, size=8.5, color=MUTED)
     fld = OxmlElement("w:fldSimple"); fld.set(qn("w:instr"), "PAGE"); p._p.append(fld)
     doc.core_properties.title = "AFMS User Manual"
     doc.core_properties.subject = "Accountable Forms Management System operating guide"
@@ -399,40 +449,43 @@ def build_manual():
     p = doc.add_paragraph(); p.alignment=WD_ALIGN_PARAGRAPH.CENTER; p.paragraph_format.space_after=Pt(4); set_font(p.add_run("Municipality of Dipaculao"), size=14, color=NAVY, bold=True)
     p = doc.add_paragraph(); p.alignment=WD_ALIGN_PARAGRAPH.CENTER; p.paragraph_format.space_after=Pt(2); set_font(p.add_run("Province of Aurora"), size=12, color=MUTED)
     p = doc.add_paragraph(); p.alignment=WD_ALIGN_PARAGRAPH.CENTER; p.paragraph_format.space_after=Pt(30); set_font(p.add_run("Municipal Treasury Office"), size=12, color=MUTED)
-    m.table(["Document", "Version", "Issued", "Classification"], [["AFMS User Manual", "1.0", "16 July 2026", "Internal office use"]], [3300,1500,1860,2700], font_size=9)
-    m.note("Important", "This manual describes AFMS as implemented in version 1.0. Commands shown to a user depend on assigned permissions and transaction status. Never share passwords or use another person's account.", "warning")
+    m.table(["Document", "Version", "Issued", "Classification"], [["AFMS User Manual", MANUAL_VERSION, ISSUE_DATE, "Single-operator working copy"]], [3300,1500,1860,2700], font_size=9)
+    m.note("Important", f"This manual describes AFMS as implemented through manual version {MANUAL_VERSION}. AFMS is configured for one operator with full access. Transaction statuses and validation safeguards still apply.", "warning")
 
     # Contents and quick start
     m.chapter("1", "About This Manual", "Purpose, audience, system scope, and how to use this guide.")
     m.heading("1.1 Purpose", 2)
     m.body("AFMS - Accountable Forms Management System is an offline Windows desktop application used by the Municipal Treasury Office to track Official Receipts and other accountable forms. It preserves the chain of accountability from stock receipt through issuance, use, transfer, return, exception handling, reversal, reporting, fiscal-year close, and archival.")
-    m.heading("1.2 Intended users", 2)
-    m.bullets(["Accountable Forms Custodians who receive, safeguard, and issue accountable forms.", "Encoders who record authorized usage information.", "Supervisors who review and approve sensitive transactions.", "Administrators who maintain users, settings, backups, and exceptional access.", "Auditors or viewers who inspect inventory, ledgers, movements, reports, and audit records."])
+    m.heading("1.2 Intended user", 2)
+    m.body("AFMS is configured for one accountable-forms operator who receives stock, records issuance and usage, maintains collector accountability, performs corrections, generates reports, and protects the local database.")
     m.heading("1.3 What AFMS does", 2)
     m.bullets(["Maintains editable master data for form types, barangays, collectors, users, and office settings.", "Generates controlled booklet inventory from validated serial ranges.", "Tracks current holder, barangay, remaining quantity, movements, usage, returns, and exceptions.", "Uses permission-based workflows and records approvals, rejections, finalization, reversal, printing, export, backup, and restore activity.", "Produces printable PDF forms, professional reports, and Excel workbooks entirely offline."])
     m.heading("1.4 What AFMS does not replace", 2)
     m.body("AFMS supports accountability records; it does not replace statutory source documents, physical receipt custody, required signatures, cashbook procedures, or applicable Commission on Audit and treasury regulations. Retain original documents according to office policy.")
     doc.add_page_break()
     m.heading("1.5 Contents at a glance", 2)
-    m.table(["Chapter", "Subject"], [["2", "Installation, first launch, login, and security"],["3", "Application interface and navigation"],["4", "Roles, permissions, and transaction statuses"],["5", "Master data"],["6", "Stock receiving"],["7", "Inventory and movement history"],["8", "Issuance and collector accountability"],["9", "Usage, transfers, returns, exceptions, attachments, and reversals"],["10", "Reports, PDF, Excel, and printing"],["11", "Users, settings, audit log, and session security"],["12", "Backup, restore, and fiscal years"],["13", "Recommended operating workflows and checklists"],["14", "Troubleshooting and frequently asked questions"],["Appendices", "Reference numbers, statuses, initial data, and glossary"]], [1600,7760])
+    m.table(["Chapter", "Subject"], [["2", "Installation, first launch, login, and security"],["3", "Application interface and navigation"],["4", "Single-operator access and transaction statuses"],["5", "Master data"],["6", "Stock receiving"],["7", "Inventory and movement history"],["8", "Issuance and collector accountability"],["9", "Usage, transfers, returns, exceptions, attachments, and reversals"],["10", "Reports, PDF, Excel, and printing"],["11", "Account, settings, audit log, and session security"],["12", "Backup, restore, and fiscal years"],["13", "Recommended operating workflows and checklists"],["14", "Troubleshooting and frequently asked questions"],["Appendices", "Reference numbers, statuses, initial data, and glossary"]], [1600,7760])
+    m.heading("1.6 What's new in manual version 1.2", 2)
+    m.bullets(["One full-access operator role replaces the previous multi-role setup.", "The same operator may submit, approve, finalize, reject, or safely reverse eligible transactions.", "Draft stock-receiving records can be deleted before they affect inventory.", "Finalized records remain protected and corrections still use audited reversal.", "Existing users automatically receive the single full-access role while older roles are retained only as inactive history.", "Modern navy-and-teal login branding and responsive grids remain in place."])
 
-    m.chapter("2", "Getting Started and Signing In", "Installation, first administrator setup, login, password changes, and logout.")
+    m.chapter("2", "Getting Started and Signing In", "Installation, first operator setup, login, password changes, and logout.")
+    m.picture("login_screen.png", caption="Figure 1. Current AFMS sign-in screen. Credentials are entered only in the right-side form.")
     m.heading("2.1 Computer requirements",2)
     m.bullets(["Windows 10 or Windows 11, 64-bit.", "A user account with permission to install the application when using the installer.", "Sufficient local storage for the database, attachments, reports, logs, and backups.", "A configured printer only when paper printing is required. AFMS itself works without internet access."])
     m.heading("2.2 Install AFMS",2)
     m.steps(["Close any running AFMS window.", "Run AFMS-Setup-1.0.0-win-x64.exe.", "Follow the installer prompts and optionally create a desktop shortcut.", "Open AFMS from the Start Menu or desktop shortcut.", "On upgrade, install over the existing application. Operational data is stored separately under the user's local application-data folder."])
     m.note("Data location", "The live database, attachments, and rolling logs are stored under %LOCALAPPDATA%\\AFMS. Uninstalling the program does not silently delete those records. Back them up before computer replacement or operating-system reinstallation.", "info")
-    m.heading("2.3 First launch administrator setup",2)
-    m.steps(["Enter the administrator's full display name.", "Enter a unique username.", "Create a password with at least 12 characters containing uppercase and lowercase letters, a number, and a symbol.", "Enter the same password in Confirm password.", "Choose Create administrator. AFMS hashes the password with BCrypt; the plain-text password is never stored.", "Store the administrator credentials using the municipality's approved credential-control procedure."])
-    m.note("No default password", "AFMS does not contain a permanent administrator password. If the first administrator password is lost, follow the office's authorized recovery procedure; do not edit the database manually.", "danger")
+    m.heading("2.3 First launch operator setup",2)
+    m.steps(["Enter your full display name.", "Enter a unique username.", "Create a password with at least 12 characters containing uppercase and lowercase letters, a number, and a symbol.", "Enter the same password in Confirm password.", "Choose Create my account. AFMS hashes the password with BCrypt; the plain-text password is never stored.", "Store your credentials in a secure place you control."])
+    m.note("No default password", "AFMS does not contain a permanent password. Keep your password and a recent validated backup secure; do not edit the database manually to bypass login.", "danger")
     m.heading("2.4 Sign in",2)
-    m.steps(["Open AFMS.", "Enter your username and password.", "Choose Sign in.", "If prompted, create a new password before proceeding. Temporary passwords should be changed immediately.", "Confirm that your name and role appear in the lower-left account area."])
+    m.steps(["Open AFMS. The navy panel identifies AFMS and confirms offline operation.", "Enter your username and password in the white form on the right.", "Choose Sign in.", "If prompted, create a new password before proceeding.", "Confirm that your name and Full access appear in the lower-left account area."])
     m.body("Failed login messages are intentionally generic. Repeated failed attempts increase the failed-login count and may temporarily lock the account. Inactive accounts cannot sign in.")
     m.heading("2.5 Sign out and automatic timeout",2)
     m.bullets(["Use the sign-out icon beside your account name whenever leaving the workstation.", "AFMS automatically ends an inactive session after the configured timeout.", "Unsaved form entries may be lost when a session expires; save drafts before leaving the workstation.", "Never allow another employee to continue using your signed-in session."])
 
-    m.chapter("3", "Understanding the AFMS Interface", "Navigation, page structure, filters, tables, editor panels, and notifications.")
-    m.picture("interface_map.png", caption="Figure 1. AFMS application shell and the main working areas.")
+    m.chapter("3", "Understanding the AFMS Interface", "Navigation, page structure, filters, tables, editor panels, and notifications.", page_break=False)
+    m.picture("interface_map.png", caption="Figure 2. AFMS application shell and the main working areas.")
     m.heading("3.1 Left navigation",2)
     m.body("The left navigation is grouped into Overview, Master Data, Stock & Accountability, and Administration. The selected page is highlighted. A page is hidden when the signed-in user lacks the required permission.")
     m.heading("3.2 Top bar",2)
@@ -440,16 +493,16 @@ def build_manual():
     m.heading("3.3 Common page pattern",2)
     m.table(["Area", "How to use it"], [["Page heading", "Explains the purpose of the module."],["Search and filters", "Narrow records before loading or exporting. Clear filters when a record appears missing."],["Data grid", "Select one complete row before using View, Edit, Submit, Approve, Finalize, Print, or Reverse."],["Editor panel", "Enter or review transaction fields. Required fields are marked with an asterisk where applicable."],["Action bar", "Commands apply to the selected record and may be disabled because of status or permission."],["Notification area", "Shows success, validation, or error messages. Read the message before retrying."]], [2050,7310])
     m.heading("3.4 Keyboard and resizing",2)
-    m.bullets(["Use Tab and Shift+Tab to move between controls.", "Press Enter on a default Search or Save action where supported.", "Use arrow keys to move through list and table selections.", "Maximize AFMS for wide inventory and movement grids. Horizontal scrolling remains available when necessary.", "Focused controls display a clear border for keyboard accessibility."])
+    m.bullets(["Use Tab and Shift+Tab to move between controls.", "Press Enter on a default Search or Save action where supported.", "Use arrow keys to move through list and table selections.", "Labels remain above date and filter fields so values are readable at common Windows display scales.", "Maximize AFMS for wide inventory and movement grids. Columns retain readable headings and horizontal scrolling remains available when necessary.", "Focused controls display a clear border for keyboard accessibility."])
     m.note("Selection matters", "Most transaction commands operate on the selected row, not merely the visible page. Confirm the reference number and status before approving, finalizing, reversing, printing, or attaching a file.", "warning")
 
-    m.chapter("4", "Roles, Permissions, and Workflow Statuses", "Who can do what and how records move through controlled approval.")
-    m.heading("4.1 Default roles",2)
-    m.table(["Role", "Typical access"], [["Administrator", "All permissions, including users, backups, restore, settings, reversals, and fiscal-year administration."],["Accountable Forms Custodian", "Master data, stock receipt and issuance, operational transactions, inventory, ledgers, reports, and fiscal-year maintenance."],["Encoder", "Dashboard, receipt usage recording, and reports."],["Supervisor", "Operational processing, approvals, reports, inventory, ledgers, fiscal-year close, and reopen approval."],["Auditor or Viewer", "Read-only dashboard, inventory, movements, issuances, ledgers, reports, exports, and audit log."]], [2450,6910])
-    m.note("Separation of duties", "A user must not approve a sensitive transaction that the same user submitted when separation of duties is required. Fiscal-year reopening requires an administrator request and a supervisor approval by a different authorized user.", "warning")
-    m.picture("approval_workflow.png", caption="Figure 2. Standard approval and reversal workflow.")
+    m.chapter("4", "Single-Operator Access and Workflow Statuses", "Full access with deliberate review steps and protected transaction history.")
+    m.heading("4.1 Single full-access role",2)
+    m.table(["Access model", "What it means"], [["Full access", "Your signed-in operator account can use all AFMS modules, including approvals, reversals, settings, backups, restore, reports, audit review, and fiscal-year administration."]], [2450,6910])
+    m.note("Review steps remain", "You may submit and approve your own transaction, but AFMS keeps the separate statuses so you can pause, recheck the source document and serials, then consciously approve and finalize. Every action is audited.", "info")
+    m.picture("approval_workflow.png", caption="Figure 3. Standard approval and reversal workflow.")
     m.heading("4.2 Transaction status meanings",2)
-    m.table(["Status", "Meaning", "User action"], [["Draft", "Editable working record.", "Complete fields, save, and verify."],["Submitted", "Sent for review.", "Supervisor reviews; preparer should not directly edit."],["Approved", "Supervisor approved the transaction.", "Authorized user may finalize."],["Rejected", "Supervisor declined the request.", "Review the reason; create or correct a valid draft as policy permits."],["Finalized", "Inventory and accountability effects are committed.", "Do not edit or delete directly."],["Reversed", "A controlled opposite transaction was posted.", "Original remains in history; review movements and ledgers."],["Archived", "Retained for history and no longer operational.", "Read-only reference."]], [1500,3900,3960])
+    m.table(["Status", "Meaning", "User action"], [["Draft", "Editable working record.", "Complete fields, save, verify, or delete the draft when supported."],["Submitted", "Ready for a deliberate review.", "Recheck source documents, collector, ranges, and quantities."],["Approved", "You confirmed the transaction is ready.", "Finalize when the physical action and records agree."],["Rejected", "You stopped the submitted request.", "Review the reason and create or correct a valid draft."],["Finalized", "Inventory and accountability effects are committed.", "Do not edit or delete directly."],["Reversed", "A controlled opposite transaction was posted.", "Original remains in history; review movements and ledgers."],["Archived", "Retained for history and no longer operational.", "Read-only reference."]], [1500,3900,3960])
     m.heading("4.3 Booklet status meanings",2)
     m.table(["Status", "Meaning"], [["Available", "In office stock and eligible for issuance."],["Issued", "Assigned to a collector; no recorded usage."],["Partially Used", "Some serials were used; usable balance remains."],["Fully Used", "No usable receipts remain."],["Returned", "Returned from a collector under a recorded return."],["Transferred", "Accountability moved between collectors."],["Spoiled / Cancelled", "Not available for normal use."],["Lost / Missing", "Unavailable and subject to exception handling."],["Archived", "Removed from active operations but preserved historically."]], [2200,7160])
 
@@ -468,7 +521,7 @@ def build_manual():
     m.note("Do not delete history", "Collectors with transaction history must not be permanently deleted. Deactivation prevents new assignments while preserving prior accountability and reports.", "danger")
 
     m.chapter("6", "Stock Receiving", "Create receiving drafts, validate serial ranges, generate booklets, and finalize stock.")
-    m.picture("lifecycle.png", caption="Figure 3. The accountable-form lifecycle managed by AFMS.")
+    m.picture("lifecycle.png", caption="Figure 4. The accountable-form lifecycle managed by AFMS.")
     m.heading("6.1 Before receiving",2)
     m.bullets(["Confirm the accountable form type exists and is active.", "Verify the source document, physical booklet count, receipts per booklet, and complete serial range.", "Confirm the correct series year and storage location.", "Do not receive a range already recorded in AFMS."])
     m.heading("6.2 Create a receiving draft",2)
@@ -477,13 +530,14 @@ def build_manual():
     m.body("Total receipt quantity equals Ending Serial minus Beginning Serial plus one. It must also equal Number of Booklets multiplied by Receipts Per Booklet.")
     m.note("Example", "10 booklets x 50 receipts = 500 receipts. Beginning 100001 and ending 100500 also equals 500. AFMS generates 100001-100050, 100051-100100, continuing through 100451-100500.", "success")
     m.heading("6.4 Submit and finalize",2)
-    m.steps(["Select the saved draft and use View to recheck every field and range.", "Choose Submit when the transaction is complete.", "An authorized reviewer confirms the source, quantities, and non-overlapping serials.", "Choose Finalize. AFMS validates all items again inside one database transaction.", "Confirm that generated booklets appear in Stock Inventory and Received movements appear in Movement History."])
+    m.steps(["Select the saved draft and use View to recheck every field and range.", "Choose Submit when the transaction is complete.", "Review the source, quantities, and non-overlapping serials yourself.", "Choose Finalize. AFMS validates all items again inside one database transaction.", "Confirm that generated booklets appear in Stock Inventory and Received movements appear in Movement History."])
     m.heading("6.5 Receiving protections",2)
-    m.bullets(["Beginning serial cannot exceed ending serial.", "Zero and negative quantities are rejected.", "Booklet count, per-booklet count, range quantity, and generated booklet count must agree.", "Duplicate or overlapping serial ranges are rejected.", "If any item fails, the entire finalization rolls back.", "Finalized receipts cannot be edited or deleted directly.", "Repeated finalization clicks do not create duplicate inventory."])
+    m.bullets(["Beginning serial cannot exceed ending serial.", "Zero and negative quantities are rejected.", "Booklet count, per-booklet count, range quantity, and generated booklet count must agree.", "Duplicate or overlapping serial ranges are rejected.", "If any item fails, the entire finalization rolls back.", "A Draft can be removed with Delete draft before it affects inventory.", "Finalized receipts cannot be edited or deleted directly.", "Repeated finalization clicks do not create duplicate inventory."])
+    m.note("Layered integrity", "AFMS checks ranges before saving and also enforces non-overlap rules inside SQLite. This protects stock, generated booklet ranges, active accountability ranges, and issuance reservations even when operations occur close together.", "info")
     m.heading("6.6 Reversal",2)
-    m.body("Use Reverse only when authorized and when a receiving correction must be recorded. Enter a complete reason. AFMS preserves the original transaction and writes reversal audit and stock history. A reversal may be blocked when later transactions depend on the stock.")
+    m.body("For a Draft entered by mistake, select it and choose Delete draft. For a Finalized receipt, choose Reverse and enter a complete reason. You may reverse your own receipt, but only while every generated booklet is still untouched and Available. AFMS preserves the original transaction and writes reversal audit and stock history; it blocks reversal when later transactions depend on the stock.")
 
-    m.chapter("7", "Stock Inventory and Movement History", "Find booklets or individual receipts and trace every movement.")
+    m.chapter("7", "Stock Inventory and Movement History", "Find booklets or individual receipts and trace every movement.", page_break=False)
     m.heading("7.1 Search inventory",2)
     m.steps(["Open Stock Inventory.", "Enter free text to search references, form type, collector, or storage location.", "Optionally choose Form Type, Series Year, Status, Collector, Barangay, and received-date range.", "Use Available only for issuable office stock or Outstanding only for collector-held accountability.", "To find an individual receipt, enter its serial number in the serial-number field and choose Search inventory."])
     m.note("Containing-range search", "Searching serial 100025 returns the booklet whose beginning and ending serials contain 100025; an exact beginning-serial match is not required.", "info")
@@ -496,13 +550,13 @@ def build_manual():
     m.steps(["Open Movement History.", "Search by reference, form, source, or destination.", "Optionally filter by Form Type, Movement Type, individual receipt serial, and date range.", "Use the results to reconcile inventory, collector accountability, and reports."])
     m.note("Never overwrite history", "Current holder fields describe present accountability. Historical movements preserve prior holders and should be used when investigating how a range reached its current status.", "warning")
 
-    m.chapter("8", "Issuance and Collector Accountability", "Reserve available booklets, obtain approval, finalize issuance, and review collector ledgers.")
+    m.chapter("8", "Issuance and Collector Accountability", "Reserve available booklet ranges, obtain approval, finalize issuance, and review collector ledgers.", page_break=False)
     m.heading("8.1 Create an issuance",2)
-    m.steps(["Open Issue to Collectors and choose a new issuance draft.", "Enter Date Issued, Collector, Barangay or Collection Area, Purpose, Released By, Approved By, Received By, and Remarks.", "Open the inventory-selection area and filter by form type, series year, storage location, or serial range.", "Select one or more available booklets and add them to the issuance.", "Review form type, booklet range, quantity, and series year for each item.", "Save the draft. AFMS assigns an ISS reference number."])
+    m.steps(["Open Issue to Collectors and choose a new issuance draft.", "Enter Date Issued, Collector, Barangay or Collection Area, Purpose, Released By, Approved By, Received By, and Remarks.", "Open the inventory-selection area and filter by form type, series year, storage location, or serial range.", "Select one or more available booklet ranges and add them to the issuance. An available range may be a full original booklet or an exact unused subrange previously returned to stock.", "Review form type, beginning serial, ending serial, quantity, and series year for each item.", "Save the draft. AFMS assigns an ISS reference number."])
     m.heading("8.2 Submit, approve, and finalize",2)
-    m.steps(["The custodian selects the draft and chooses Submit.", "A supervisor using a separate authorized account reviews the collector, purpose, booklets, ranges, and physical release documents.", "The supervisor chooses Approve or Reject and records comments when required.", "After approval, an authorized user chooses Finalize.", "AFMS marks each booklet Issued, assigns collector and barangay, records Date Issued, writes Issued movements, and updates the collector ledger atomically."])
+    m.steps(["Select the draft and choose Submit.", "Recheck the collector, purpose, booklets, ranges, and physical release documents.", "Choose Approve or Reject and record comments when required.", "After approval, choose Finalize.", "AFMS marks each booklet Issued, assigns collector and barangay, records Date Issued, writes Issued movements, and updates the collector ledger atomically."])
     m.heading("8.3 Issuance restrictions",2)
-    m.bullets(["Inactive collectors cannot receive new issuances.", "Only available stock may be issued.", "Already issued, fully used, cancelled, lost, missing, and archived booklets are excluded.", "A booklet reserved in another unfinalized issuance cannot be selected twice.", "Closed fiscal periods are protected.", "If one item fails, the entire issuance finalization rolls back."])
+    m.bullets(["Inactive collectors cannot receive new issuances.", "Only exact ranges currently marked Available may be issued.", "Already issued, fully used, cancelled, lost, missing, and archived ranges are excluded.", "Overlapping ranges reserved by another unfinalized issuance cannot be selected again.", "A usable partial range returned to available stock can be reissued without changing the history or ownership of other serials from the same original booklet.", "Closed fiscal periods are protected.", "If one item fails, the entire issuance finalization rolls back."])
     m.heading("8.4 Print the issuance receipt",2)
     m.steps(["Select the issuance reference.", "Choose the print-preview or PDF action available on the Issuance screen or select Accountable Forms Issuance Receipt in Reports.", "Confirm municipality, province, office, collector, ranges, quantities, purpose, remarks, and signatory lines.", "Print or save the PDF and obtain required signatures."])
     m.heading("8.5 Collector Accountability Ledger",2)
@@ -510,7 +564,7 @@ def build_manual():
     m.steps(["Open Collector Ledger.", "Choose a Collector and optionally filter by Form Type, Barangay, month, year, or date range.", "Use Outstanding only to focus on current accountability.", "Choose Load ledger.", "Review transaction date, reference, type, serial range, quantities, balance, barangay, status, and remarks."])
     m.note("Balance interpretation", "Issuance and Transfer In increase accountability. Usage, Transfer Out, Return, cancellation/spoilage, valid adjustment, and reversal effects change the balance according to their recorded movement direction.", "info")
 
-    m.chapter("9", "Usage, Transfers, Returns, Exceptions, and Reversals", "Receipt-level accountability changes after issuance.")
+    m.chapter("9", "Usage, Transfers, Returns, Exceptions, and Reversals", "Receipt-level accountability changes after issuance.", page_break=False)
     m.heading("9.1 Select the accountable range",2)
     m.steps(["Open Usage, Transfers & Returns.", "Select the Current Collector.", "Choose Load owned ranges.", "Select the Owned unused range.", "Confirm Beginning, Ending, Transaction Date, and the required reason or source reference.", "Choose the correct Usage, Transfers, Returns, or Exceptions tab."])
     m.heading("9.2 Record used or sold receipts",2)
@@ -520,16 +574,16 @@ def build_manual():
     m.steps(["Select the original collector and unused range.", "On Transfers, choose an active Receiving Collector.", "Enter Released or Approved By and Remarks.", "Save the transfer draft.", "Select the record and follow Submit, Approve, and Finalize.", "Use Add attachment for supporting documents when needed."])
     m.body("Only unused receipts currently held by the original collector can be transferred. Partial-range transfer is supported. Finalization writes Transfer Out and Transfer In movements and ledger entries while preserving the original issuance history.")
     m.heading("9.4 Return unused forms",2)
-    m.steps(["Select the collector-held unused range.", "On Returns, choose the correct Disposition.", "Enter Received By and Remarks, then save the return draft.", "Submit, obtain supervisor approval, and finalize.", "Attach supporting documents when required."])
+    m.steps(["Select the collector-held unused range.", "On Returns, choose the correct Disposition.", "Enter Received By and Remarks, then save the return draft.", "Submit, review, approve, and finalize.", "Attach supporting documents when required."])
     m.table(["Disposition", "Inventory result"], [["Returned to Available Stock", "Usable returned range becomes available for future issuance."],["Returned but Damaged", "Not returned to issuable stock."],["For Cancellation", "Held for controlled cancellation."],["Archived", "Removed from active operations and retained historically."],["Subject to Investigation", "Not available until investigation and resolution."]], [3100,6260])
     m.heading("9.5 Exception management",2)
     m.body("Use Exceptions for Spoiled, Cancelled, Lost, Missing, Damaged, Numbering Error, Invalidated, or Other incidents.")
-    m.steps(["Select the affected collector and booklet/range.", "Choose the Incident Type.", "Enter a detailed reason or explanation, action taken or approved by, and remarks.", "Save the exception draft and add allowed supporting attachments.", "Submit for supervisor review.", "A supervisor approves or rejects the incident.", "Finalize only after approval."])
+    m.steps(["Select the affected collector and booklet/range.", "Choose the Incident Type.", "Enter a detailed reason or explanation, action taken, and remarks.", "Save the exception draft and add allowed supporting attachments.", "Submit the incident.", "Review the details and choose Approve or Reject.", "Finalize only after approval."])
     m.note("Permanent record", "Exception transactions are never permanently deleted. Lost, missing, damaged, cancelled, spoiled, and invalidated receipts do not become normally issuable stock.", "danger")
     m.heading("9.6 Attachments",2)
     m.bullets(["Attachments are supported for transfers, returns, and exceptions.", "Select a saved transaction before choosing Add attachment.", "AFMS stores the file outside the database in an organized application-data folder and records file metadata.", "Dangerous executable file types are rejected.", "Use only authorized supporting documents and follow privacy requirements."])
     m.heading("9.7 Rejecting and reversing",2)
-    m.body("Reject applies to a submitted record and requires a meaningful reason. Reverse applies to an eligible finalized record and requires special permission plus a complete reason.")
+    m.body("Reject applies to a submitted record and requires a meaningful reason. Reverse applies to an eligible finalized record and requires a complete reason. Your full-access account can perform both actions.")
     m.steps(["Select the exact reference and confirm its status.", "Enter the reason in the reason/source field.", "Choose Reject or Reverse as authorized.", "Read the confirmation carefully and proceed once.", "Verify the opposite stock movement, collector balance, transaction status, and audit entry."])
     m.note("Reversal safety", "A reversal never deletes the original transaction. It may be blocked when later activity makes restoration unsafe. Repeated reversal is prohibited.", "warning")
 
@@ -556,20 +610,21 @@ def build_manual():
     m.heading("10.6 Printing checklist",2)
     m.steps(["Confirm the report title, filters, reporting period, and reference number.", "Compare a sample total with Inventory, Movement History, or Collector Ledger.", "Confirm signatory names from System Settings.", "Use Print Preview before paper printing.", "Select the correct printer and paper size.", "File the signed output and retain the electronic copy if required."])
 
-    m.chapter("11", "Administration and Audit", "Users, system settings, audit-log review, and security operations.")
-    m.heading("11.1 User Management",2)
-    m.steps(["Open Users. Only administrators with Manage Users permission can use this module.", "Choose Create user.", "Enter unique Username, Full Name, optional Linked Collector, Role, and Active status.", "Create a temporary password that meets the password policy and confirm it.", "Enable Force password change at next login.", "Choose Save and securely communicate the temporary credential."])
+    m.chapter("11", "Account, Settings, and Audit", "Single-operator account maintenance, system settings, audit-log review, and security operations.")
+    m.heading("11.1 Operator account",2)
+    m.body("AFMS uses one Full access role. The Users page remains available for account recovery or a future handover, but every active account receives the same full-access role; older multi-role options are inactive and no longer selectable.")
+    m.steps(["Open Users.", "Select your account to view status, last login, failed-login count, and account activity.", "Use Reset password only when needed and choose a password that meets the policy.", "Keep at least one active account so AFMS remains accessible."])
     m.heading("11.2 Edit, reset, activate, or deactivate",2)
-    m.bullets(["Edit updates full name, collector link, role, and active status; username is not casually changed.", "Reset password creates a temporary password and can force change at next login.", "Deactivate blocks future login while preserving activity and transaction history.", "View activity shows login, account, and security events for the selected user.", "Password hashes are never displayed."])
+    m.bullets(["Edit updates the display name, optional collector link, and active status; Full access is fixed.", "Reset password creates a temporary password and can force change at next login.", "Password reset or account deactivation invalidates older sessions for that account.", "Deactivate blocks future login while preserving activity and transaction history.", "AFMS will not deactivate or delete the final active full-access account.", "View activity shows login, account, and security events.", "Password hashes are never displayed."])
     m.heading("11.3 System Settings",2)
     m.table(["Group", "Settings"], [["Municipality and office", "Municipality, Province, Office Name, Office Address, Municipal Treasurer, Default Fiscal Year."],["Report signatories", "Prepared By, Checked By, Certified Correct By."],["Files and references", "Reference prefixes, backup folder, report output folder."],["Backup policy", "Daily backup enabled/time, retention days, recent-backup warning hours."],["Session security", "Automatic logout after inactivity in minutes."]], [2500,6860])
     m.note("Configuration source", "Do not hard-code signatories or office information into reports. Update System Settings and regenerate the report. Prepared By, Checked By, Certified Correct By, and Default Fiscal Year are intentionally flexible.", "info")
     m.heading("11.4 Audit Log",2)
     m.steps(["Open Audit Log.", "Search by user, description, entity, reference, or computer name.", "Filter by date range and activity type.", "Use Previous and Next to move through paginated results.", "Select a row to review original values, new values, reason, and integrity hash."])
-    m.body("Audit records include login, logout, failed login, create, edit, submit, approve, reject, finalize, reverse, print, export, backup, restore, permission changes, and fiscal-year actions. Ordinary users cannot edit or delete the audit log. Records are append-only and integrity-chained.")
+    m.body("Audit records include login, logout, failed login, create, edit, submit, approve, reject, finalize, reverse, print, export, backup, restore, permission changes, and fiscal-year actions. Ordinary users cannot edit or delete the audit log. Records are append-only and integrity-chained. When an older database is upgraded, AFMS retains its legacy audit history, upgrades eligible entries into the protected chain, verifies the result, and records the upgrade event.")
 
-    m.chapter("12", "Backup, Restore, and Fiscal Years", "Protect the database and control year-end operations.")
-    m.picture("backup_flow.png", caption="Figure 4. Validated backup and restart-safe restoration flow.")
+    m.chapter("12", "Backup, Restore, and Fiscal Years", "Protect the database and control year-end operations.", page_break=False)
+    m.picture("backup_flow.png", caption="Figure 5. Validated backup and restart-safe restoration flow.")
     m.heading("12.1 Backup responsibilities",2)
     m.bullets(["AFMS can create manual, scheduled, application-closing, and pre-restore backups.", "The backup service validates SQLite integrity, records file size and hash, and keeps backup history.", "Retention settings remove old backups according to policy.", "A visible warning appears when no recent valid backup exists.", "Use a separate drive or approved network location; do not keep every backup beside the live database."])
     m.heading("12.2 Create and validate a manual backup",2)
@@ -578,11 +633,11 @@ def build_manual():
     m.note("Sensitive operation", "Restoration replaces the working database after restart. Ensure all AFMS users are out, no writes are active, and the selected file is the correct validated backup.", "danger")
     m.steps(["Create and validate a current manual backup first.", "Choose the backup file to restore or select an eligible history record.", "Enter the required restore reason.", "Choose Restore and confirm the warning.", "AFMS validates the file and creates an automatic pre-restore safety backup.", "AFMS schedules the replacement and restarts safely.", "After restart, confirm users, settings, recent transactions, inventory totals, and audit entries."], compact=True)
     m.heading("12.4 Fiscal-year creation and close",2)
-    m.steps(["Open Backup & Fiscal Years and select Fiscal Years.", "Enter Year, Start Date, and End Date; choose Create fiscal year.", "Before closing, select the year and choose Pre-close check.", "Resolve draft transactions, unresolved exceptions, inventory discrepancies, invalid balances, and unapproved transactions.", "Enter the reason and choose Request close.", "A different supervisor account reviews the check and chooses Approve close.", "AFMS creates a year-end snapshot, carries forward outstanding forms, and protects the closed period from edits."], compact=True)
+    m.steps(["Open Backup & Fiscal Years and select Fiscal Years.", "Enter Year, Start Date, and End Date; choose Create fiscal year.", "Before closing, select the year and choose Pre-close check.", "Resolve draft transactions, unresolved exceptions, inventory discrepancies, invalid balances, and unapproved transactions.", "Enter the reason and choose Request close.", "Review the check, then choose Approve close using your signed-in account.", "AFMS creates a year-end snapshot, carries forward outstanding forms, and protects the closed period from edits."], compact=True)
     m.heading("12.5 Documented exceptions",2)
     m.body("When authorized by office policy, Allow documented exceptions permits closure despite listed issues only when the reason fully documents the exception. This does not remove the underlying audit trail or reconciliation responsibility.")
     m.heading("12.6 Reopen a fiscal year",2)
-    m.steps(["An administrator selects the closed year, enters a detailed reason, and chooses Request reopen.", "A separate supervisor reviews the reason and chooses Approve reopen.", "AFMS records the administrator request, supervisor decision, timestamps, and reason.", "After authorized corrections, rerun the pre-close check and close the year again."], compact=True)
+    m.steps(["Select the closed year, enter a detailed reason, and choose Request reopen.", "Review the reason and choose Approve reopen.", "AFMS records both actions, timestamps, and the reason.", "After corrections, rerun the pre-close check and close the year again."], compact=True)
 
     m.chapter("13", "Recommended Operating Procedures", "Practical daily, receiving, issuing, monthly, and year-end checklists.")
     m.heading("13.1 Daily opening checklist",2)
@@ -590,7 +645,7 @@ def build_manual():
     m.heading("13.2 Receiving-day checklist",2)
     m.bullets(["Count physical booklets and verify the source document.", "Check beginning and ending serials on the first and last booklet.", "Confirm per-booklet quantity and series year.", "Save as draft, independently review, then submit/finalize.", "Search the first and last serial in Inventory.", "File the receiving document and generated receiving form."])
     m.heading("13.3 Issuance-day checklist",2)
-    m.bullets(["Confirm collector is active and authorized.", "Select only Available inventory.", "Match physical booklet serials to the issuance items.", "Use separate preparer and supervisor accounts.", "Finalize only after physical release controls are complete.", "Print, sign, and file the issuance receipt.", "Verify the collector ledger increased correctly."])
+    m.bullets(["Confirm collector is active and authorized.", "Select only Available inventory.", "Match physical booklet serials to the issuance items.", "Submit, pause, and recheck the transaction before approving it yourself.", "Finalize only after physical release controls are complete.", "Print, sign, and file the issuance receipt.", "Verify the collector ledger increased correctly."])
     m.heading("13.4 Usage reporting checklist",2)
     m.bullets(["Use the collector who actually holds the range.", "Record continuous ranges accurately and explain legitimate gaps.", "Compare amount collected with the source report where applicable.", "Finalize and verify Used and Remaining quantities.", "Resolve spoilage, cancellation, loss, or numbering errors through Exceptions rather than forcing usage."])
     m.heading("13.5 Monthly reconciliation",2)
@@ -602,17 +657,17 @@ def build_manual():
 
     m.chapter("14", "Troubleshooting and Frequently Asked Questions", "Safe responses to common operating problems.", page_break=False)
     faq = [
-        ("I cannot see a menu item.", "Your role likely lacks the required permission. Confirm your signed-in role and ask an administrator to review the assigned role. Do not use another user's account."),
-        ("Save or Finalize is disabled.", "Confirm a row is selected, required fields are complete, the transaction has the correct status, and your role has the permission. Wait for an active save to complete before clicking again."),
+        ("I cannot see a menu item.", "Sign out and sign in again so AFMS refreshes the Full access session. If it remains missing, review the application log or contact technical support."),
+        ("Save or Finalize is disabled.", "Confirm a row is selected, required fields are complete, and the transaction has the correct status. Wait for an active save to complete before clicking again."),
         ("AFMS says the range overlaps.", "Search the beginning, ending, and a middle serial in Inventory. Review the original receiving reference. Correct the draft; never alter finalized database records manually."),
         ("An individual serial cannot be found.", "Clear restrictive filters, search only the serial-number field, then review whether the relevant receiving transaction was finalized or reversed."),
         ("A collector is missing from issuance.", "The collector may be inactive. Review the Collectors module and reactivate only with authorization."),
-        ("Approval is rejected because I submitted it.", "Use a different authorized supervisor account. This is the intended separation-of-duties control."),
+        ("Can I approve a transaction I submitted?", "Yes. In the single-operator version, submit the record, recheck it, then approve and finalize it using the same account."),
         ("A reversal is blocked.", "Later activity may depend on the transaction, or it may already be reversed. Review inventory detail and movements, then follow the authorized correction procedure."),
         ("A report is empty.", "Check date range, fiscal year, status, reference, collector, and form filters. Official reports usually require finalized transactions."),
         ("PDF or Excel export fails.", "Confirm the output folder exists and is writable, the destination file is not open, and sufficient disk space is available. Technical details are written to AFMS logs."),
         ("Backup validation fails.", "Do not restore the file. Select another validated backup or create a new one. Preserve the failed file for technical investigation."),
-        ("I forgot my password.", "Ask an administrator to reset it. AFMS cannot display the old password because only a secure hash is stored."),
+        ("I forgot my password.", "AFMS cannot display the old password because only a secure hash is stored. Use a verified recovery or handover account if one exists; otherwise contact technical support and keep a current validated backup available."),
         ("The application closes after inactivity.", "This is the configured session timeout. Sign in again and save drafts before leaving the workstation."),
     ]
     m.table(["Problem", "Safe response"], faq, [2850,6510], font_size=9)
@@ -647,7 +702,7 @@ def build_manual():
 
     m.chapter("D", "Appendix D - Document Control and Training Sign-Off")
     m.heading("Revision history",2)
-    m.table(["Version", "Date", "Summary", "Approved by"], [["1.0","16 July 2026","Initial comprehensive AFMS user manual.",""]], [1300,1700,4560,1800])
+    m.table(["Version", "Date", "Summary", "Approved by"], [["1.0","16 July 2026","Initial comprehensive AFMS user manual.",""],["1.1",ISSUE_DATE,"Login redesign; range-aware issuance; integrity, session, audit, and responsive-layout updates.",""],["1.2",ISSUE_DATE,"Single-operator full access, same-user approval and reversal, and receiving-draft deletion.",""]], [1300,1700,4560,1800])
     m.heading("User training acknowledgment",2)
     m.body("I acknowledge that I received orientation on AFMS, understand that I must use only my assigned account, and agree to follow Municipal Treasury Office procedures for accountable forms, approvals, reports, backups, and confidential information.")
     m.table(["Name and position", "Signature", "Date"], [["","",""] for _ in range(5)], [4300,2860,2200])

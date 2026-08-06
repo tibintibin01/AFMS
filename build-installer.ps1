@@ -6,7 +6,13 @@ $installer = Join-Path $root 'artifacts\installer'
 dotnet restore (Join-Path $root 'AFMS.sln')
 dotnet test (Join-Path $root 'AFMS.sln') -c Release
 dotnet publish (Join-Path $root 'AFMS.App\AFMS.App.csproj') -c Release -r win-x64 --self-contained true `
-  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o $publish
+  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=none -o $publish
+
+# Newer SDKs clear the publish folder, which drops this loose file. The app also
+# carries an embedded copy, so it still runs without it, but ship the editable one
+# so the office can adjust its starter items and people.
+Copy-Item (Join-Path $root 'AFMS.App\starter-data.json') $publish -Force
+Write-Host "Published to $publish"
 
 $candidates = @(
   "$env:ProgramFiles(x86)\Inno Setup 6\ISCC.exe",

@@ -18,9 +18,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!--
+      Copied beside the exe so the office can edit its starter items and people,
+      and also embedded as a fallback. A publish that drops the loose file, or a
+      user who deletes it, then still gets a working starter list.
+    -->
     <None Update="starter-data.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
+    <EmbeddedResource Include="starter-data.json" LogicalName="starter-data.json" />
   </ItemGroup>
 
 </Project>

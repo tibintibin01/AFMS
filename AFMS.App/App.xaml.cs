@@ -83,6 +83,7 @@ public partial class App : System.Windows.Application
                 services.AddInventoryCore($"Data Source={paths.DatabasePath}");
                 services.AddSingleton<IApplicationPaths>(paths);
                 services.AddSingleton<IUserDialogService, UserDialogService>();
+                services.AddSingleton<ISignInPreferences, SignInPreferences>();
 
                 // Replaces the empty provider registered by the core project.
                 services.AddSingleton<IStarterDataProvider, JsonStarterDataProvider>();
