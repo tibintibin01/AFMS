@@ -48,12 +48,12 @@
 
                 <!-- Mark -->
                 <StackPanel Orientation="Horizontal">
-                    <Border Width="46" Height="46" CornerRadius="12" Background="{StaticResource GoldBrush}">
-                        <TextBlock Text="AF" FontSize="17" FontWeight="Bold"
-                                   Foreground="{StaticResource NavyDarkBrush}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Width="52" Height="52" CornerRadius="26" Background="#0E2033"
+                            BorderBrush="{StaticResource GoldBrush}" BorderThickness="1.5">
+                        <Image Source="/Assets/logo.png" Width="44" Height="44" Stretch="Uniform"
+                               RenderOptions.BitmapScalingMode="HighQuality" />
                     </Border>
-                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                    <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
                         <TextBlock Text="AFMS" Foreground="White" FontSize="17" FontWeight="Bold" />
                         <TextBlock Text="INVENTORY RECORDS" Foreground="#8FA8BE" FontSize="9"
                                    FontWeight="SemiBold" />

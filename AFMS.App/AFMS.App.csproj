@@ -5,6 +5,7 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationTitle>AFMS Inventory</ApplicationTitle>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +29,11 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
     <EmbeddedResource Include="starter-data.json" LogicalName="starter-data.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The municipal seal, used as the mark on the sign-in and setup screens. -->
+    <Resource Include="Assets\logo.png" />
   </ItemGroup>
 
 </Project>

@@ -5,7 +5,7 @@
         xmlns:views="clr-namespace:AFMS.App.Views"
         Title="AFMS Inventory"
         Width="1340" Height="820" MinWidth="1080" MinHeight="660"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
 
     <Window.Resources>
         <DataTemplate DataType="{x:Type viewModels:DashboardViewModel}"><views:DashboardView /></DataTemplate>
@@ -39,10 +39,10 @@
                         <ColumnDefinition Width="46" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Border Width="44" Height="44" CornerRadius="12" Background="{StaticResource GoldBrush}">
-                        <TextBlock Text="AF" FontSize="15" FontWeight="Bold"
-                                   Foreground="{StaticResource NavyDarkBrush}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Width="44" Height="44" CornerRadius="22" Background="#0E2033"
+                            BorderBrush="{StaticResource GoldBrush}" BorderThickness="1.5">
+                        <Image Source="/Assets/logo.png" Width="36" Height="36" Stretch="Uniform"
+                               RenderOptions.BitmapScalingMode="HighQuality" />
                     </Border>
                     <StackPanel Grid.Column="1" Margin="11,2,0,0" VerticalAlignment="Center">
                         <TextBlock Text="AFMS" Foreground="White" FontSize="19" FontWeight="Bold" />
