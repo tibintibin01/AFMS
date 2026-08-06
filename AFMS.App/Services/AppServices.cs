@@ -4,6 +4,7 @@ using System.Windows;
 using AFMS.Core;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
 namespace AFMS.App.Services;
@@ -49,9 +50,12 @@ public interface IUserDialogService
     string? PickSaveLocation(string suggestedFileName, string filter);
     void Inform(string message, string title);
     void OpenFile(string path);
+
+    /// <summary>Opens the change-password dialog. True when the password was changed.</summary>
+    bool ShowChangePassword();
 }
 
-public sealed class UserDialogService : IUserDialogService
+public sealed class UserDialogService(IServiceScopeFactory scopeFactory) : IUserDialogService
 {
     public bool Confirm(string message, string title) =>
         MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No)
@@ -92,6 +96,17 @@ public sealed class UserDialogService : IUserDialogService
             OverwritePrompt = true
         };
         return dialog.ShowDialog() == true ? dialog.FileName : null;
+    }
+
+    public bool ShowChangePassword()
+    {
+        // Its view model needs scoped services, so give the dialog its own scope.
+        // The signed-in session itself is shared, so the change applies to the
+        // person currently using the app.
+        using var scope = scopeFactory.CreateScope();
+        var window = scope.ServiceProvider.GetRequiredService<Views.ChangePasswordWindow>();
+        window.Owner = Application.Current.MainWindow;
+        return window.ShowDialog() == true;
     }
 
     public void OpenFile(string path)

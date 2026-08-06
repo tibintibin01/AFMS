@@ -25,27 +25,10 @@
                          Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
                          AutomationProperties.Name="Username" />
 
-                <Label Content="_Password" Target="{Binding ElementName=PasswordBox}"
-                       Padding="0,14,0,5" FontWeight="SemiBold" FontSize="12" />
+                <TextBlock Text="Password" Padding="0,14,0,5" FontWeight="SemiBold" FontSize="12" />
 
-                <!--
-                  A PasswordBox cannot show its own text, so a plain TextBox sits behind it
-                  and the eye toggle swaps which one is visible. Both feed the same property.
-                -->
-                <Grid>
-                    <PasswordBox x:Name="PasswordBox" MaxLength="128" Padding="9,5,34,5"
-                                 PasswordChanged="OnPasswordChanged"
-                                 AutomationProperties.Name="Password" />
-                    <TextBox x:Name="PasswordPlainBox" MaxLength="128" Padding="9,5,34,5"
-                             Visibility="Collapsed" TextChanged="OnPasswordPlainChanged"
-                             AutomationProperties.Name="Password, visible" />
-                    <ToggleButton x:Name="RevealToggle" Style="{StaticResource RevealToggleStyle}"
-                                  HorizontalAlignment="Right" Margin="0,0,4,0"
-                                  IsChecked="{Binding ShowPassword}"
-                                  Checked="OnRevealChanged" Unchecked="OnRevealChanged"
-                                  ToolTip="{Binding RevealTooltip}"
-                                  AutomationProperties.Name="Show or hide the password" />
-                </Grid>
+                <views:RevealPasswordBox x:Name="PasswordBox" FieldName="Password"
+                                        Password="{Binding Password, Mode=TwoWay}" />
 
                 <CheckBox Content="Remember my username" Margin="0,16,0,0"
                           IsChecked="{Binding RememberUsername}"

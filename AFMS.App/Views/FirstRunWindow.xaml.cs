@@ -1,5 +1,4 @@
 using System.Windows;
-using System.Windows.Controls;
 using AFMS.App.ViewModels;
 
 namespace AFMS.App.Views;
@@ -15,13 +14,8 @@ public partial class FirstRunWindow : Window
 
         _viewModel.AccountCreated += HandleAccountCreated;
         Closed += (_, _) => _viewModel.AccountCreated -= HandleAccountCreated;
+        Loaded += (_, _) => NameBox.Focus();
     }
 
     private void HandleAccountCreated() => DialogResult = true;
-
-    private void OnPasswordChanged(object sender, RoutedEventArgs e) =>
-        _viewModel.Password = ((PasswordBox)sender).Password;
-
-    private void OnConfirmPasswordChanged(object sender, RoutedEventArgs e) =>
-        _viewModel.ConfirmPassword = ((PasswordBox)sender).Password;
 }

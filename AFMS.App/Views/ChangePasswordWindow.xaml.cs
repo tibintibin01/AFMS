@@ -1,5 +1,4 @@
 using System.Windows;
-using System.Windows.Controls;
 using AFMS.App.ViewModels;
 
 namespace AFMS.App.Views;
@@ -15,16 +14,8 @@ public partial class ChangePasswordWindow : Window
 
         _viewModel.PasswordChanged += HandlePasswordChanged;
         Closed += (_, _) => _viewModel.PasswordChanged -= HandlePasswordChanged;
+        Loaded += (_, _) => CurrentBox.FocusInput();
     }
 
     private void HandlePasswordChanged() => DialogResult = true;
-
-    private void OnCurrentChanged(object sender, RoutedEventArgs e) =>
-        _viewModel.CurrentPassword = ((PasswordBox)sender).Password;
-
-    private void OnNewChanged(object sender, RoutedEventArgs e) =>
-        _viewModel.NewPassword = ((PasswordBox)sender).Password;
-
-    private void OnConfirmChanged(object sender, RoutedEventArgs e) =>
-        _viewModel.ConfirmPassword = ((PasswordBox)sender).Password;
 }

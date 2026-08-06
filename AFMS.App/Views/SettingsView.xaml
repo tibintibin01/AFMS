@@ -97,6 +97,19 @@
                 </ScrollViewer>
             </TabItem>
 
+            <!-- Account -->
+            <TabItem Header="Account">
+                <StackPanel Margin="22" MaxWidth="420" HorizontalAlignment="Left">
+                    <TextBlock Text="Password" Style="{StaticResource SectionTitleStyle}" />
+                    <TextBlock TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}"
+                               Margin="0,4,0,16"
+                               Text="Change the password used to sign in to AFMS on this computer." />
+                    <Button Content="Change password..." HorizontalAlignment="Left" MinWidth="180"
+                            Command="{Binding ChangePasswordCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}" />
+                </StackPanel>
+            </TabItem>
+
             <!-- Backups -->
             <TabItem Header="Backup &amp; restore">
                 <Grid Margin="22">

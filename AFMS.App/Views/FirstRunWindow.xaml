@@ -32,18 +32,16 @@
                          Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
                          AutomationProperties.Name="Username" />
 
-                <Label Content="_Password" Target="{Binding ElementName=PasswordBox}"
-                       Padding="0,16,0,6" FontWeight="SemiBold" />
-                <PasswordBox x:Name="PasswordBox" MaxLength="128" PasswordChanged="OnPasswordChanged"
-                             AutomationProperties.Name="Password" />
+                <TextBlock Text="Password" Padding="0,16,0,6" FontWeight="SemiBold" />
+                <views:RevealPasswordBox x:Name="PasswordBox" FieldName="Password"
+                                        Password="{Binding Password, Mode=TwoWay}" />
                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource MutedTextBrush}"
                            FontSize="12" Margin="0,6,0,0"
-                           Text="At least 12 characters, with an uppercase letter, a lowercase letter, a number, and a symbol." />
+                           Text="At least 12 characters, with an uppercase letter, a lowercase letter, a number, and a symbol. Use the eye to check what you typed." />
 
-                <Label Content="Type the password a_gain" Target="{Binding ElementName=ConfirmBox}"
-                       Padding="0,16,0,6" FontWeight="SemiBold" />
-                <PasswordBox x:Name="ConfirmBox" MaxLength="128" PasswordChanged="OnConfirmPasswordChanged"
-                             AutomationProperties.Name="Confirm password" />
+                <TextBlock Text="Type the password again" Padding="0,16,0,6" FontWeight="SemiBold" />
+                <views:RevealPasswordBox x:Name="ConfirmBox" FieldName="Confirm password"
+                                        Password="{Binding ConfirmPassword, Mode=TwoWay}" />
 
                 <TextBlock Text="{Binding Message}" Foreground="{StaticResource DangerBrush}"
                            TextWrapping="Wrap" MinHeight="34" Margin="0,16,0,10" />

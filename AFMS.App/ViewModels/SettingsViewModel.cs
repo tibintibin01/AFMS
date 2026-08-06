@@ -45,6 +45,7 @@ public sealed class SettingsViewModel : PageViewModelBase
         _dialogs = dialogs;
 
         SaveCommand = new AsyncRelayCommand(SaveAsync);
+        ChangePasswordCommand = new RelayCommand(ChangePassword);
         BrowseBackupFolderCommand = new RelayCommand(BrowseBackupFolder);
         BrowseReportFolderCommand = new RelayCommand(BrowseReportFolder);
         BackupNowCommand = new AsyncRelayCommand(BackupNowAsync);
@@ -63,6 +64,7 @@ public sealed class SettingsViewModel : PageViewModelBase
     public ObservableCollection<AuditEntryDto> AuditEntries { get; } = [];
 
     public ICommand SaveCommand { get; }
+    public ICommand ChangePasswordCommand { get; }
     public ICommand BrowseBackupFolderCommand { get; }
     public ICommand BrowseReportFolderCommand { get; }
     public ICommand BackupNowCommand { get; }
@@ -147,6 +149,12 @@ public sealed class SettingsViewModel : PageViewModelBase
 
         ReportSuccess("Settings saved. The auto-lock time takes effect at the next sign-in.");
     });
+
+    private void ChangePassword()
+    {
+        if (_dialogs.ShowChangePassword())
+            ReportSuccess("Password changed.");
+    }
 
     private void BrowseBackupFolder()
     {

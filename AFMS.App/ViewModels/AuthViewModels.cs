@@ -89,7 +89,6 @@ public sealed class SignInViewModel : PageViewModelBase
     private string _username = string.Empty;
     private string _password = string.Empty;
     private bool _rememberUsername;
-    private bool _showPassword;
 
     public SignInViewModel(IAuthenticationService auth, ISignInPreferences preferences)
     {
@@ -129,18 +128,6 @@ public sealed class SignInViewModel : PageViewModelBase
         get => _rememberUsername;
         set => SetProperty(ref _rememberUsername, value);
     }
-
-    /// <summary>Swaps the password box for a plain text one so the typing can be checked.</summary>
-    public bool ShowPassword
-    {
-        get => _showPassword;
-        set
-        {
-            if (SetProperty(ref _showPassword, value)) RaisePropertyChanged(nameof(RevealTooltip));
-        }
-    }
-
-    public string RevealTooltip => ShowPassword ? "Hide password" : "Show password";
 
     public ICommand SignInCommand { get; }
 
