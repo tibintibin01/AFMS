@@ -1,5 +1,5 @@
-#define MyAppName "AFMS - Accountable Forms Management System"
-#define MyAppVersion "1.0.0"
+#define MyAppName "AFMS Inventory"
+#define MyAppVersion "2.0.0"
 #define MyAppPublisher "Municipal Treasury Office"
 #define MyAppExeName "AFMS.App.exe"
 
@@ -12,7 +12,7 @@ DefaultDirName={autopf}\AFMS
 DefaultGroupName=AFMS
 DisableProgramGroupPage=yes
 OutputDir=..\artifacts\installer
-OutputBaseFilename=AFMS-Setup-{#MyAppVersion}-win-x64
+OutputBaseFilename=AFMS-Inventory-Setup-{#MyAppVersion}-win-x64
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -32,11 +32,14 @@ Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription:
 Source: "..\artifacts\publish\win-x64\*"; DestDir: "{app}"; Excludes: "*.pdb"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{autoprograms}\AFMS"; Filename: "{app}\{#MyAppExeName}"
-Name: "{autodesktop}\AFMS"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autoprograms}\AFMS Inventory"; Filename: "{app}\{#MyAppExeName}"
+Name: "{autodesktop}\AFMS Inventory"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "Launch AFMS"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "Launch AFMS Inventory"; Flags: nowait postinstall skipifsilent
+
+; Records live under %LOCALAPPDATA%\AFMS and are deliberately left in place on
+; uninstall, so removing the program never erases the office's records.
 
 [Code]
 function InitializeSetup(): Boolean;

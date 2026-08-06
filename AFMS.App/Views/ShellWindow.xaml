@@ -3,85 +3,243 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:viewModels="clr-namespace:AFMS.App.ViewModels"
         xmlns:views="clr-namespace:AFMS.App.Views"
-        Title="AFMS – Accountable Forms Management System"
-        Width="1360" Height="820" MinWidth="1080" MinHeight="680"
+        Title="AFMS Inventory"
+        Width="1340" Height="820" MinWidth="1080" MinHeight="660"
         WindowStartupLocation="CenterScreen">
+
     <Window.Resources>
-        <DataTemplate DataType="{x:Type viewModels:AccountableFormTypesViewModel}"><views:AccountableFormTypesView /></DataTemplate>
-        <DataTemplate DataType="{x:Type viewModels:BarangaysViewModel}"><views:BarangaysView /></DataTemplate>
-        <DataTemplate DataType="{x:Type viewModels:CollectorsViewModel}"><views:CollectorsView /></DataTemplate>
-        <DataTemplate DataType="{x:Type viewModels:UserManagementViewModel}"><views:UserManagementView /></DataTemplate>
-        <DataTemplate DataType="{x:Type viewModels:SystemSettingsViewModel}"><views:SystemSettingsView /></DataTemplate>
-        <DataTemplate DataType="{x:Type viewModels:AuditLogViewModel}"><views:AuditLogView /></DataTemplate>
-        <DataTemplate DataType="{x:Type viewModels:StockReceivingViewModel}"><views:StockReceivingView /></DataTemplate>
-        <DataTemplate DataType="{x:Type viewModels:InventoryViewModel}"><views:InventoryView /></DataTemplate>
-        <DataTemplate DataType="{x:Type viewModels:StockMovementHistoryViewModel}"><views:StockMovementHistoryView /></DataTemplate>
-        <DataTemplate DataType="{x:Type viewModels:IssuanceViewModel}"><views:IssuanceView /></DataTemplate>
-        <DataTemplate DataType="{x:Type viewModels:CollectorLedgerViewModel}"><views:CollectorLedgerView /></DataTemplate>
-        <DataTemplate DataType="{x:Type viewModels:OperationalTransactionsViewModel}"><views:OperationalTransactionsView /></DataTemplate>
-        <DataTemplate DataType="{x:Type viewModels:ReportCenterViewModel}"><views:ReportCenterView /></DataTemplate>
-        <DataTemplate DataType="{x:Type viewModels:MaintenanceViewModel}"><views:MaintenanceView /></DataTemplate>
         <DataTemplate DataType="{x:Type viewModels:DashboardViewModel}"><views:DashboardView /></DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:StockInViewModel}"><views:StockInView /></DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:ReleasesViewModel}"><views:ReleasesView /></DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:OutstandingViewModel}"><views:OutstandingView /></DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:HistoryViewModel}"><views:HistoryView /></DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:ReportsViewModel}"><views:ReportsView /></DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:ItemsViewModel}"><views:ItemsView /></DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:PeopleViewModel}"><views:PeopleView /></DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:SettingsViewModel}"><views:SettingsView /></DataTemplate>
     </Window.Resources>
 
     <Grid Background="{StaticResource CanvasBrush}">
-        <Grid.ColumnDefinitions><ColumnDefinition Width="264"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
+        <!-- Navigation -->
         <Border Background="{StaticResource NavyBrush}">
             <Grid>
-                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                <Grid Margin="22,24,18,19">
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="48"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                    <Border Width="46" Height="46" CornerRadius="12" Background="{StaticResource GoldBrush}"><TextBlock Text="AF" FontSize="16" FontWeight="Bold" Foreground="{StaticResource NavyDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
-                    <StackPanel Grid.Column="1" Margin="12,2,0,0" VerticalAlignment="Center"><TextBlock Text="AFMS" Foreground="White" FontSize="21" FontWeight="Bold"/><TextBlock Text="MUNICIPAL TREASURY" Foreground="#AFC4D7" FontSize="9" FontWeight="SemiBold"/></StackPanel>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Margin="20,22,16,18">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="46" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="44" Height="44" CornerRadius="12" Background="{StaticResource GoldBrush}">
+                        <TextBlock Text="AF" FontSize="15" FontWeight="Bold"
+                                   Foreground="{StaticResource NavyDarkBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="11,2,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="AFMS" Foreground="White" FontSize="19" FontWeight="Bold" />
+                        <TextBlock Text="INVENTORY RECORDS" Foreground="#AFC4D7" FontSize="9"
+                                   FontWeight="SemiBold" />
+                    </StackPanel>
                 </Grid>
 
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel Margin="0,3,0,12">
-                        <TextBlock Text="OVERVIEW" Foreground="#8FA8BE" FontSize="10" FontWeight="SemiBold" Margin="24,9,0,7"/>
-                        <ToggleButton Tag="Dashboard" Content="Dashboard" CommandParameter="&#xE80F;" Command="{Binding DashboardCommand}" Style="{StaticResource NavigationToggleButtonStyle}" Visibility="{Binding CanViewDashboard, Converter={StaticResource BooleanToVisibilityConverter}}"><ToggleButton.IsChecked><MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay"><Binding Path="CurrentSection"/><Binding RelativeSource="{RelativeSource Self}" Path="Tag"/></MultiBinding></ToggleButton.IsChecked></ToggleButton>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="0,2,0,12" KeyboardNavigation.TabNavigation="Continue">
 
-                        <TextBlock Text="MASTER DATA" Foreground="#8FA8BE" FontSize="10" FontWeight="SemiBold" Margin="24,18,0,7"/>
-                        <ToggleButton Tag="Form Types" Content="Form Types" CommandParameter="&#xE7C3;" Command="{Binding AccountableFormsCommand}" Style="{StaticResource NavigationToggleButtonStyle}" Visibility="{Binding CanManageFormTypes, Converter={StaticResource BooleanToVisibilityConverter}}"><ToggleButton.IsChecked><MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay"><Binding Path="CurrentSection"/><Binding RelativeSource="{RelativeSource Self}" Path="Tag"/></MultiBinding></ToggleButton.IsChecked></ToggleButton>
-                        <ToggleButton Tag="Barangays" Content="Barangays" CommandParameter="&#xE707;" Command="{Binding BarangaysCommand}" Style="{StaticResource NavigationToggleButtonStyle}" Visibility="{Binding CanManageBarangays, Converter={StaticResource BooleanToVisibilityConverter}}"><ToggleButton.IsChecked><MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay"><Binding Path="CurrentSection"/><Binding RelativeSource="{RelativeSource Self}" Path="Tag"/></MultiBinding></ToggleButton.IsChecked></ToggleButton>
-                        <ToggleButton Tag="Collectors" Content="Collectors" CommandParameter="&#xE77B;" Command="{Binding CollectorsCommand}" Style="{StaticResource NavigationToggleButtonStyle}" Visibility="{Binding CanManageCollectors, Converter={StaticResource BooleanToVisibilityConverter}}"><ToggleButton.IsChecked><MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay"><Binding Path="CurrentSection"/><Binding RelativeSource="{RelativeSource Self}" Path="Tag"/></MultiBinding></ToggleButton.IsChecked></ToggleButton>
+                        <ToggleButton Tag="Dashboard" Content="Dashboard" CommandParameter="&#xE80F;"
+                                      Command="{Binding DashboardCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="Dashboard">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
 
-                        <TextBlock Text="STOCK &amp; ACCOUNTABILITY" Foreground="#8FA8BE" FontSize="10" FontWeight="SemiBold" Margin="24,18,0,7"/>
-                        <ToggleButton Tag="Receive Stock" Content="Receive Stock" CommandParameter="&#xE896;" Command="{Binding StockReceivingCommand}" Style="{StaticResource NavigationToggleButtonStyle}" Visibility="{Binding CanReceiveStock, Converter={StaticResource BooleanToVisibilityConverter}}"><ToggleButton.IsChecked><MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay"><Binding Path="CurrentSection"/><Binding RelativeSource="{RelativeSource Self}" Path="Tag"/></MultiBinding></ToggleButton.IsChecked></ToggleButton>
-                        <ToggleButton Tag="Stock Inventory" Content="Stock Inventory" CommandParameter="&#xE8FD;" Command="{Binding InventoryCommand}" Style="{StaticResource NavigationToggleButtonStyle}" Visibility="{Binding CanViewInventory, Converter={StaticResource BooleanToVisibilityConverter}}"><ToggleButton.IsChecked><MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay"><Binding Path="CurrentSection"/><Binding RelativeSource="{RelativeSource Self}" Path="Tag"/></MultiBinding></ToggleButton.IsChecked></ToggleButton>
-                        <ToggleButton Tag="Movement History" Content="Movement History" CommandParameter="&#xE81C;" Command="{Binding StockMovementsCommand}" Style="{StaticResource NavigationToggleButtonStyle}" Visibility="{Binding CanViewStockMovements, Converter={StaticResource BooleanToVisibilityConverter}}"><ToggleButton.IsChecked><MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay"><Binding Path="CurrentSection"/><Binding RelativeSource="{RelativeSource Self}" Path="Tag"/></MultiBinding></ToggleButton.IsChecked></ToggleButton>
-                        <ToggleButton Tag="Issue to Collectors" Content="Issue to Collectors" CommandParameter="&#xE72D;" Command="{Binding IssuanceCommand}" Style="{StaticResource NavigationToggleButtonStyle}" Visibility="{Binding CanViewIssuances, Converter={StaticResource BooleanToVisibilityConverter}}"><ToggleButton.IsChecked><MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay"><Binding Path="CurrentSection"/><Binding RelativeSource="{RelativeSource Self}" Path="Tag"/></MultiBinding></ToggleButton.IsChecked></ToggleButton>
-                        <ToggleButton Tag="Collector Ledger" Content="Collector Ledger" CommandParameter="&#xE8EF;" Command="{Binding CollectorLedgerCommand}" Style="{StaticResource NavigationToggleButtonStyle}" Visibility="{Binding CanViewCollectorAccountability, Converter={StaticResource BooleanToVisibilityConverter}}"><ToggleButton.IsChecked><MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay"><Binding Path="CurrentSection"/><Binding RelativeSource="{RelativeSource Self}" Path="Tag"/></MultiBinding></ToggleButton.IsChecked></ToggleButton>
-                        <ToggleButton Tag="Usage, Transfers &amp; Returns" Content="Usage, Transfers &amp; Returns" CommandParameter="&#xE8AB;" Command="{Binding TransactionsCommand}" Style="{StaticResource NavigationToggleButtonStyle}" Visibility="{Binding CanViewTransactions, Converter={StaticResource BooleanToVisibilityConverter}}"><ToggleButton.IsChecked><MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay"><Binding Path="CurrentSection"/><Binding RelativeSource="{RelativeSource Self}" Path="Tag"/></MultiBinding></ToggleButton.IsChecked></ToggleButton>
-                        <ToggleButton Tag="Reports" Content="Reports" CommandParameter="&#xE9D2;" Command="{Binding ReportsCommand}" Style="{StaticResource NavigationToggleButtonStyle}" Visibility="{Binding CanViewReports, Converter={StaticResource BooleanToVisibilityConverter}}"><ToggleButton.IsChecked><MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay"><Binding Path="CurrentSection"/><Binding RelativeSource="{RelativeSource Self}" Path="Tag"/></MultiBinding></ToggleButton.IsChecked></ToggleButton>
+                        <TextBlock Text="RECORD" Foreground="#8FA8BE" FontSize="10" FontWeight="SemiBold"
+                                   Margin="22,18,0,7" />
 
-                        <TextBlock Text="ADMINISTRATION" Foreground="#8FA8BE" FontSize="10" FontWeight="SemiBold" Margin="24,18,0,7"/>
-                        <ToggleButton Tag="Users" Content="Users" CommandParameter="&#xE716;" Command="{Binding UserManagementCommand}" Style="{StaticResource NavigationToggleButtonStyle}" Visibility="{Binding CanManageUsers, Converter={StaticResource BooleanToVisibilityConverter}}"><ToggleButton.IsChecked><MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay"><Binding Path="CurrentSection"/><Binding RelativeSource="{RelativeSource Self}" Path="Tag"/></MultiBinding></ToggleButton.IsChecked></ToggleButton>
-                        <ToggleButton Tag="System Settings" Content="System Settings" CommandParameter="&#xE713;" Command="{Binding SystemSettingsCommand}" Style="{StaticResource NavigationToggleButtonStyle}" Visibility="{Binding CanManageSettings, Converter={StaticResource BooleanToVisibilityConverter}}"><ToggleButton.IsChecked><MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay"><Binding Path="CurrentSection"/><Binding RelativeSource="{RelativeSource Self}" Path="Tag"/></MultiBinding></ToggleButton.IsChecked></ToggleButton>
-                        <ToggleButton Tag="Audit Log" Content="Audit Log" CommandParameter="&#xEA18;" Command="{Binding AuditLogCommand}" Style="{StaticResource NavigationToggleButtonStyle}" Visibility="{Binding CanViewAuditLogs, Converter={StaticResource BooleanToVisibilityConverter}}"><ToggleButton.IsChecked><MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay"><Binding Path="CurrentSection"/><Binding RelativeSource="{RelativeSource Self}" Path="Tag"/></MultiBinding></ToggleButton.IsChecked></ToggleButton>
-                        <ToggleButton Tag="Backup &amp; Fiscal Years" Content="Backup &amp; Fiscal Years" CommandParameter="&#xE8E9;" Command="{Binding MaintenanceCommand}" Style="{StaticResource NavigationToggleButtonStyle}" Visibility="{Binding CanMaintainSystem, Converter={StaticResource BooleanToVisibilityConverter}}"><ToggleButton.IsChecked><MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay"><Binding Path="CurrentSection"/><Binding RelativeSource="{RelativeSource Self}" Path="Tag"/></MultiBinding></ToggleButton.IsChecked></ToggleButton>
+                        <ToggleButton Tag="Stock In" Content="Stock In" CommandParameter="&#xE896;"
+                                      Command="{Binding StockInCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="Record incoming stock">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
+
+                        <ToggleButton Tag="Release" Content="Release" CommandParameter="&#xE72D;"
+                                      Command="{Binding ReleasesCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="Release items to a person">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
+
+                        <TextBlock Text="REVIEW" Foreground="#8FA8BE" FontSize="10" FontWeight="SemiBold"
+                                   Margin="22,18,0,7" />
+
+                        <ToggleButton Tag="Who Has What" Content="Who Has What" CommandParameter="&#xE8EF;"
+                                      Command="{Binding OutstandingCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="Who has what, still unreturned">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
+
+                        <ToggleButton Tag="History" Content="History" CommandParameter="&#xE81C;"
+                                      Command="{Binding HistoryCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="Full in and out history">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
+
+                        <ToggleButton Tag="Reports" Content="Reports" CommandParameter="&#xE9D2;"
+                                      Command="{Binding ReportsCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="Printable reports">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
+
+                        <TextBlock Text="SET UP" Foreground="#8FA8BE" FontSize="10" FontWeight="SemiBold"
+                                   Margin="22,18,0,7" />
+
+                        <ToggleButton Tag="Items" Content="Items" CommandParameter="&#xE8FD;"
+                                      Command="{Binding ItemsCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="Items being tracked">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
+
+                        <ToggleButton Tag="People" Content="People" CommandParameter="&#xE77B;"
+                                      Command="{Binding PeopleCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="People who receive items">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
+
+                        <ToggleButton Tag="Settings" Content="Settings &amp; Backup" CommandParameter="&#xE713;"
+                                      Command="{Binding SettingsCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="Settings, backup, and audit trail">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
                     </StackPanel>
                 </ScrollViewer>
 
-                <Border Grid.Row="2" BorderBrush="#345778" BorderThickness="0,1,0,0" Padding="18,15">
-                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                        <Border Width="34" Height="34" CornerRadius="17" Background="#2B5275"><TextBlock Text="&#xE77B;" FontFamily="Segoe Fluent Icons" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                        <StackPanel Grid.Column="1" Margin="9,0,6,0" VerticalAlignment="Center"><TextBlock Text="{Binding DisplayName}" Foreground="White" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding RoleSummary}" Foreground="#AFC4D7" FontSize="10" TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/></StackPanel>
-                        <Button Grid.Column="2" Content="&#xE8AC;" FontFamily="Segoe Fluent Icons" ToolTip="Sign out" Command="{Binding LogoutCommand}" Width="36" Height="36" Padding="0" Foreground="#D8E5F0" Background="Transparent" BorderThickness="0"/>
+                <Border Grid.Row="2" BorderBrush="#345778" BorderThickness="0,1,0,0" Padding="16,14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="36" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="32" Height="32" CornerRadius="16" Background="#2B5275">
+                            <TextBlock Text="&#xE77B;" FontFamily="Segoe Fluent Icons" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="9,0,6,0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding DisplayName}" Foreground="White" FontWeight="SemiBold"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="Signed in" Foreground="#AFC4D7" FontSize="10" Margin="0,2,0,0" />
+                        </StackPanel>
+                        <Button Grid.Column="2" Content="&#xE8AC;" FontFamily="Segoe Fluent Icons"
+                                ToolTip="Sign out" AutomationProperties.Name="Sign out"
+                                Command="{Binding SignOutCommand}"
+                                Width="36" Height="36" Padding="0" Foreground="#D8E5F0"
+                                Background="Transparent" BorderThickness="0" />
                     </Grid>
                 </Border>
             </Grid>
         </Border>
 
+        <!-- Content -->
         <Grid Grid.Column="1">
-            <Grid.RowDefinitions><RowDefinition Height="68"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="62" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
             <Border Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
-                <Grid Margin="28,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center"><TextBlock Text="Municipal Treasury Office" Foreground="{StaticResource MutedTextBrush}"/><TextBlock Text="/" Foreground="#B1BECA" Margin="10,0"/><TextBlock Text="{Binding CurrentSection}" FontWeight="SemiBold" Foreground="{StaticResource NavyBrush}"/></StackPanel>
-                    <Border Grid.Column="1" Background="#EAF6F1" CornerRadius="14" Padding="11,6" VerticalAlignment="Center"><StackPanel Orientation="Horizontal"><Ellipse Width="7" Height="7" Fill="{StaticResource SuccessBrush}" Margin="0,0,7,0"/><TextBlock Text="OFFLINE READY" Foreground="{StaticResource SuccessBrush}" FontSize="10" FontWeight="Bold"/></StackPanel></Border>
+                <Grid Margin="26,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="AFMS Inventory" Foreground="{StaticResource MutedTextBrush}" />
+                        <TextBlock Text="/" Foreground="#B1BECA" Margin="9,0" />
+                        <TextBlock Text="{Binding CurrentSection}" FontWeight="SemiBold"
+                                   Foreground="{StaticResource NavyBrush}" />
+                    </StackPanel>
+                    <Border Grid.Column="1" Background="#EAF6F1" CornerRadius="13" Padding="10,5"
+                            VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="7" Height="7" Fill="{StaticResource SuccessBrush}"
+                                     Margin="0,0,7,0" VerticalAlignment="Center" />
+                            <TextBlock Text="SAVED ON THIS COMPUTER" Foreground="{StaticResource SuccessBrush}"
+                                       FontSize="10" FontWeight="Bold" />
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </Border>
-            <ContentControl Grid.Row="1" Content="{Binding CurrentPage}"/>
+
+            <Border Grid.Row="1" Background="#FFF8F7" BorderBrush="#E8BBB7" BorderThickness="0,0,0,1"
+                    Padding="26,10"
+                    Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}">
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource DangerBrush}"
+                           TextWrapping="Wrap" FontWeight="SemiBold" />
+            </Border>
+
+            <ContentControl Grid.Row="2" Content="{Binding CurrentPage}" />
         </Grid>
     </Grid>
 </Window>

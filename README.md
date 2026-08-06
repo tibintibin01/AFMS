@@ -1,53 +1,98 @@
-# AFMS – Accountable Forms Management System
+# AFMS Inventory
 
-AFMS is an offline-first Windows desktop system for a Municipal Treasury Office. The current implementation provides a layered .NET 8/WPF/MVVM solution, EF Core SQLite persistence, secure authentication, permission-based authorization, master-data administration, system settings, audit logging, and a navigable application shell.
+An offline Windows desktop app for one person to keep the inventory records of a
+municipal office. It answers four questions and nothing more:
 
-## Implemented modules
+- What came in, and on what document?
+- What went out, and to whom?
+- What is on hand right now?
+- What is still with someone and has not come back?
 
-- Accountable form type management
-- Barangay management
-- Collector management
-- Administrator-only user, role, reset-password, and account-activity management
-- Permission-based navigation and service authorization
-- Editable municipality, office, signatory, fiscal-year, reference, backup, and report settings
-- Search, active/inactive filters, activation/deactivation, validation, notifications, and audit history
-- Phase 3 stock-receiving drafts, submission, transactional finalization, and controlled reversal
-- Automatic accountable-form booklet generation with serial-range and quantity validation
-- Searchable stock inventory, individual receipt-number lookup, booklet detail, and movement history
-- Atomic year/prefix reference-number sequences such as `RCV-2026-000001`
-- Phase 4 issuance drafts, booklet reservations, supervisor approval/rejection, atomic finalization, and exceptional reversal
-- Collector accountability ledgers derived from immutable stock movements, with outstanding and summary views
-- Offline Accountable Forms Issuance Receipt print preview and PDF export using configurable office settings
-- Phase 5 multi-range receipt usage with sequential-gap, duplicate, ownership, and overlap validation
-- Partial unused-range transfers and returns with supervisor approval and atomic collector-ledger updates
-- Spoiled, cancelled, lost, missing, damaged, and invalidated receipt exception processing
-- Safe chained reversals that preserve later activity and restore prior range accountability only when valid
-- Supporting transfer, return, and exception attachments stored under organized AFMS application-data folders
-- Phase 6 Report Center with inventory, collector, transaction, exception, consolidated, and audit report catalogs
-- Shared report-query calculations based on finalized/reversed movement history, with explicit draft and transaction-status filters
-- Professional offline PDF generation through PDFsharp and Excel export through ClosedXML
-- On-screen preview, configured output folders, PDF preview, registered-printer support, and export/print audit records
-- Printable receiving, issuance, usage, transfer, return, exception, and reversal forms
-- Phase 7 validated manual, scheduled, closing, and pre-restore backups with retention and backup history
-- Restart-safe database restoration with corruption detection and an automatic safety backup
-- Fiscal-year pre-close checks, year-end snapshots, carry-forward rows, dual authorization, and closed-period guards
-- Append-only SHA-256 integrity-chained audit records with server-side filters and pagination
-- Generic failed-login responses, lockout, configurable inactivity logout, and live permission refresh
-- Serialized database writes/maintenance operations, UTC indexed history queries, DataGrid virtualization, and a live operational dashboard
+It handles ordinary supplies counted by quantity and accountable forms tracked by
+serial number in the same list. For serial-tracked items it refuses to release a
+serial that is still out with somebody, and names who has it.
+
+## Screens
+
+| Screen | What it is for |
+|---|---|
+| Dashboard | On hand, what is out, what is running low, latest activity |
+| Stock In | Record a delivery, a transfer in, a return, a beginning balance, or a count correction |
+| Release | Record items going out, to whom, and for what; prints a signed release slip |
+| Who Has What | Everything released and not returned, with the serial ranges each person still holds |
+| History | Every in and out line, searchable by item, person, date, or serial |
+| Reports | Five printable reports as PDF or Excel |
+| Items | The things being tracked, their unit, and their low-stock level |
+| People | Everyone items are released to |
+| Settings & Backup | Office details for printed forms, backups and restore, and the record of changes |
+
+## How the records work
+
+Nothing is ever deleted. A mistake is **voided** with a written reason, and both
+the original entry and the correction stay on file.
+
+Quantity on hand and accountability are never stored as a running total. They are
+worked out from the recorded stock-in and release lines every time they are shown,
+so a balance can never drift away from the documents behind it.
+
+Accountability clears in one way only: a Stock In entry of the kind *Returned by a
+recipient*, naming the person. That is what takes an item, and its serial range,
+off their outstanding list.
+
+Every action is written to an append-only record of changes. Database triggers
+block edits and deletes on it, so the trail holds even outside the app.
+
+## Reports
+
+- Stock on hand
+- Stock card for one item, with a running balance
+- Releases to recipients, with serial numbers
+- Outstanding accountability
+- Stock in and out summary for a date range
+
+Each one prints with the office header and signature lines from Settings, as PDF
+or as a filterable Excel sheet.
+
+## Where your data lives
+
+Everything is under `%LOCALAPPDATA%\AFMS`:
+
+```
+inventory.db      your records
+Backups\          dated .afmsbak copies
+Reports\          exported PDF and Excel files
+Logs\             rolling technical log, 31 days
+```
+
+Program files and records are kept apart on purpose, so reinstalling or upgrading
+the app never touches the records.
+
+Backups are checked as soon as they are written: the copy has to open, pass an
+integrity check, and contain the expected tables. Each one is a single
+self-contained file, so copying it to a USB drive is enough. One is taken
+automatically each day and one when the app closes. Restoring asks for a reason,
+takes a safety copy of the current data first, and applies on restart.
+
+Nothing is sent anywhere. The app needs no network connection.
+
+## First launch
+
+You will be asked to create one account. There is no default password. The
+password needs 12 characters with an uppercase letter, a lowercase letter, a
+number, and a symbol. After five wrong attempts the account locks for 15 minutes,
+and the app locks itself after a period of inactivity you set in Settings.
+
+Starter records come from `AFMS.App/starter-data.json`, which is imported once
+into a new database. Edit it before the first launch to match your office. It
+never overwrites anything you later change in the app.
 
 ## Projects
 
-- `AFMS.App` — WPF views, view models, commands, navigation, startup, and exception handling.
-- `AFMS.Domain` — entities, enums, business primitives, and serial-range rules.
-- `AFMS.Application` — use-case services, validation, DTOs, and infrastructure-neutral contracts.
-- `AFMS.Infrastructure` — EF Core, SQLite provider registration, repositories, BCrypt, migrations, logging support, and local file paths.
-- `AFMS.Tests` — unit and integration tests.
+- `AFMS.Core` — records, rules, database, reports, and backups
+- `AFMS.App` — the WPF windows and screens
+- `AFMS.Tests` — 78 tests, weighted towards serial tracking and accountability
 
-## Local data
-
-The application creates its database and rolling logs under `%LOCALAPPDATA%\AFMS`. It requires no network connection at runtime. The EF Core provider is selected only in `AFMS.Infrastructure.DependencyInjection`, so a future multi-user deployment can replace SQLite with PostgreSQL or SQL Server without changing the domain or WPF layers.
-
-Municipality-specific starter records are stored in `AFMS.App/initial-data.json`. The initializer imports each configuration version only once, never overwrites records already edited in the application, and records the import in the audit log. Imported barangays, form types, collectors, and settings remain editable through the administration screens.
+SQLite is chosen in one place, `AFMS.Core.DependencyInjection`.
 
 ## Development
 
@@ -58,16 +103,31 @@ dotnet test AFMS.sln
 dotnet run --project AFMS.App
 ```
 
-On first launch, AFMS applies migrations and requires creation of an administrator account that meets the password policy. No permanent or default administrator password exists. Phase 3 is introduced by `Phase3StockReceivingInventory`; Phase 4 by `Phase4IssuanceCollectorAccountability`; and Phase 5 by `Phase5UsageTransfersReturnsExceptions` plus `Phase5RangeReversalLineage`.
+If the build machine has a newer .NET runtime but not 8.0, set
+`DOTNET_ROLL_FORWARD=LatestMajor` before running the tests. The test project
+already sets `RollForward` for itself.
 
-Phase 7 is introduced by `Phase7SecurityBackupFiscalHardening`, with follow-up model-synchronization migrations for portable UTC history queries. The live database is migrated automatically during startup.
+Changing anything under `AFMS.Core/Domain` or `Persistence` means a new migration:
+
+```powershell
+dotnet tool restore
+dotnet ef migrations add YourChange --project AFMS.Core --output-dir Persistence\Migrations
+```
+
+Migrations are applied automatically at start up, after a safety backup.
 
 ## Windows installer
 
-1. Install the .NET 8 SDK and Inno Setup 6 on the build computer.
-2. Open PowerShell in this repository.
-3. Run `powershell -ExecutionPolicy Bypass -File .\build-installer.ps1`.
-4. The script restores packages, runs the Release test suite, publishes a self-contained Windows x64 build, and compiles `artifacts\installer\AFMS-Setup-1.0.0-win-x64.exe`.
-5. Test the installer on a clean Windows 10/11 x64 computer. On first launch, create the administrator; no default password is included.
+1. Install the .NET 8 SDK and Inno Setup 6.
+2. Run `powershell -ExecutionPolicy Bypass -File .\build-installer.ps1`.
+3. Test the result on a clean Windows 10 or 11 x64 machine.
 
-The installer writes program files under Program Files. The live database, attachments, and logs remain under `%LOCALAPPDATA%\AFMS`, so an application upgrade or uninstall does not silently erase municipal records. For deployment, code-sign both `AFMS.App.exe` and the final installer with the municipality's trusted Authenticode certificate.
+The script runs the tests, publishes a self-contained x64 build, and compiles the
+installer into `artifacts\installer`. For real deployment, code-sign both
+`AFMS.App.exe` and the installer.
+
+## Worth knowing
+
+The database file and the backups are not encrypted. Anyone who can open the
+folder can read the records. If the computer is shared or could be lost, turn on
+BitLocker.

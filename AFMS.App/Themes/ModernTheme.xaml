@@ -284,5 +284,75 @@
 
     <Style TargetType="ProgressBar"><Setter Property="Foreground" Value="{StaticResource GoldBrush}" /><Setter Property="Background" Value="#E6EBF0" /></Style>
     <Style x:Key="NotificationTextStyle" TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource SuccessBrush}" /><Setter Property="FontWeight" Value="SemiBold" /><Setter Property="TextWrapping" Value="Wrap" /><Style.Triggers><DataTrigger Binding="{Binding IsError}" Value="True"><Setter Property="Foreground" Value="{StaticResource DangerBrush}" /></DataTrigger></Style.Triggers></Style>
-    <Style x:Key="EmptyStateTextStyle" TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" /><Setter Property="FontSize" Value="14" /><Setter Property="HorizontalAlignment" Value="Center" /><Setter Property="VerticalAlignment" Value="Center" /><Setter Property="TextAlignment" Value="Center" /><Setter Property="IsHitTestVisible" Value="False" /><Style.Triggers><MultiDataTrigger><MultiDataTrigger.Conditions><Condition Binding="{Binding Items.Count}" Value="0"/><Condition Binding="{Binding IsLoading}" Value="False"/></MultiDataTrigger.Conditions><Setter Property="Visibility" Value="Visible" /></MultiDataTrigger></Style.Triggers></Style>
+    <!-- Shown when a grid has no rows and nothing is loading. -->
+    <Style x:Key="EmptyStateTextStyle" TargetType="TextBlock">
+        <Setter Property="Visibility" Value="Collapsed" />
+        <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Style.Triggers>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Rows.Count}" Value="0" />
+                    <Condition Binding="{Binding IsBusy}" Value="False" />
+                </MultiDataTrigger.Conditions>
+                <Setter Property="Visibility" Value="Visible" />
+            </MultiDataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Numbers read far more easily right-aligned in a grid. -->
+    <Style x:Key="NumericCellStyle" TargetType="TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="TextAlignment" Value="Right" />
+    </Style>
+    <Style x:Key="NumericBoldCellStyle" TargetType="TextBlock" BasedOn="{StaticResource NumericCellStyle}">
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style x:Key="MonospaceCellStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Consolas, Cascadia Mono, Courier New" />
+    </Style>
+
+    <!-- Compact grid used for the editable line rows on the recording forms. -->
+    <Style x:Key="EditableGridStyle" TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
+        <Setter Property="IsReadOnly" Value="False" />
+        <Setter Property="CanUserAddRows" Value="False" />
+        <Setter Property="RowHeight" Value="40" />
+        <Setter Property="HeadersVisibility" Value="Column" />
+        <Setter Property="AlternationCount" Value="0" />
+    </Style>
+
+    <Style x:Key="StatCardStyle" TargetType="Border" BasedOn="{StaticResource CardStyle}">
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="MinWidth" Value="150" />
+    </Style>
+    <Style x:Key="StatValueStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="26" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource NavyBrush}" />
+    </Style>
+    <Style x:Key="StatLabelStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Margin" Value="0,4,0,0" />
+    </Style>
+
+    <!-- Inline warning strip, used for the duplicate-serial notice. -->
+    <Style x:Key="WarningBannerStyle" TargetType="Border">
+        <Setter Property="Background" Value="#FFF6ED" />
+        <Setter Property="BorderBrush" Value="#F0C89A" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="7" />
+        <Setter Property="Padding" Value="12,9" />
+    </Style>
+    <Style x:Key="WarningTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="#8A4B12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
 </ResourceDictionary>

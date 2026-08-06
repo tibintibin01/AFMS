@@ -1,15 +1,13 @@
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Threading;
-using System.Diagnostics;
-using AFMS.Application;
-using AFMS.Application.Abstractions;
+using AFMS.App.Services;
 using AFMS.App.ViewModels;
 using AFMS.App.Views;
-using AFMS.App.Services;
-using AFMS.Infrastructure;
-using AFMS.Infrastructure.Files;
-using AFMS.Infrastructure.Persistence;
+using AFMS.Core;
+using AFMS.Core.Domain;
+using AFMS.Core.Files;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,9 +18,9 @@ namespace AFMS.App;
 public partial class App : System.Windows.Application
 {
     private IHost? _host;
-    private DispatcherTimer? _maintenanceTimer;
+    private DispatcherTimer? _dailyBackupTimer;
     private bool _restartRequested;
-    private bool _databaseInitialized;
+    private bool _databaseReady;
     private Task? _shutdownTask;
 
     protected override async void OnStartup(StartupEventArgs e)
@@ -31,143 +29,188 @@ public partial class App : System.Windows.Application
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
         RegisterGlobalExceptionHandlers();
 
-        var paths = new ApplicationPathService();
+        var paths = new ApplicationPaths();
         paths.EnsureDirectoriesExist();
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Information()
-            .Enrich.FromLogContext()
-            .Enrich.WithProperty("Application", "AFMS")
-            .WriteTo.File(
-                Path.Combine(paths.LogDirectory, "afms-.log"),
-                rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: 31)
-            .CreateLogger();
+        ConfigureLogging(paths);
 
         try
         {
+            // A queued restore has to be applied before anything opens the database.
             BackupService.ApplyPendingRestore(paths);
-            _host = Host.CreateDefaultBuilder(e.Args)
-                .UseSerilog()
-                .ConfigureServices(services =>
-                {
-                    services.AddApplication();
-                    services.AddInfrastructure($"Data Source={paths.DatabasePath}");
-                    services.AddSingleton<IApplicationPathService>(paths);
-                    services.AddTransient<FirstRunSetupViewModel>();
-                    services.AddTransient<LoginViewModel>();
-                    services.AddTransient<ChangePasswordViewModel>();
-                    services.AddTransient<ShellViewModel>();
-                    services.AddTransient<AccountableFormTypesViewModel>();
-                    services.AddTransient<BarangaysViewModel>();
-                    services.AddTransient<CollectorsViewModel>();
-                    services.AddTransient<UserManagementViewModel>();
-                    services.AddTransient<SystemSettingsViewModel>();
-                    services.AddTransient<AuditLogViewModel>();
-                    services.AddTransient<StockReceivingViewModel>();
-                    services.AddTransient<InventoryViewModel>();
-                    services.AddTransient<StockMovementHistoryViewModel>();
-                    services.AddTransient<IssuanceViewModel>();
-                    services.AddTransient<CollectorLedgerViewModel>();
-                    services.AddTransient<OperationalTransactionsViewModel>();
-                    services.AddTransient<ReportCenterViewModel>();
-                    services.AddTransient<MaintenanceViewModel>();
-                    services.AddTransient<DashboardViewModel>();
-                    services.AddSingleton<IUserDialogService, UserDialogService>();
-                    services.AddSingleton<IInitialDataProvider, JsonInitialDataProvider>();
-                    services.AddTransient<FirstRunSetupWindow>();
-                    services.AddTransient<LoginWindow>();
-                    services.AddTransient<ChangePasswordWindow>();
-                })
-                .Build();
 
+            _host = BuildHost(e.Args, paths);
             await _host.StartAsync();
-            using (var startupScope = _host.Services.CreateScope())
-            {
-                var startupServices = startupScope.ServiceProvider;
-                var backupService = startupServices.GetRequiredService<IBackupService>();
-                var database = startupServices.GetRequiredService<AfmsDbContext>();
-                if (File.Exists(paths.DatabasePath) && (await database.Database.GetPendingMigrationsAsync()).Any())
-                    await backupService.CreateAsync(AFMS.Domain.Enums.BackupKind.PreMigration);
-                await startupServices.GetRequiredService<IDatabaseInitializer>().InitializeAsync();
-                _databaseInitialized = true;
-                await backupService.CompletePendingRestoreAuditAsync();
-                await backupService.RunScheduledBackupIfDueAsync();
 
-                if (await startupServices.GetRequiredService<IFirstRunService>().RequiresAdministratorSetupAsync())
-                {
-                    var setupWindow = startupServices.GetRequiredService<FirstRunSetupWindow>();
-                    if (setupWindow.ShowDialog() != true)
-                    {
-                        await PrepareShutdownAsync();
-                        Shutdown();
-                        return;
-                    }
-                }
-            }
-            _maintenanceTimer = new DispatcherTimer { Interval = TimeSpan.FromHours(1) };
-            _maintenanceTimer.Tick += async (_, _) =>
-            {
-                try
-                {
-                    using var maintenanceScope = _host.Services.CreateScope();
-                    await maintenanceScope.ServiceProvider.GetRequiredService<IBackupService>().RunScheduledBackupIfDueAsync();
-                }
-                catch (Exception exception) { Log.Error(exception, "Scheduled AFMS backup failed"); }
-            };
-            _maintenanceTimer.Start();
+            if (!await PrepareDatabaseAsync(paths)) return;
+            if (!await RunFirstRunSetupIfNeededAsync()) return;
 
-            while (true)
-            {
-                using var sessionScope = _host.Services.CreateScope();
-                var services = sessionScope.ServiceProvider;
-                var loginWindow = services.GetRequiredService<LoginWindow>();
-                if (loginWindow.ShowDialog() != true)
-                {
-                    break;
-                }
-
-                var session = services.GetRequiredService<ICurrentUserSession>();
-                if (session.User?.MustChangePassword == true)
-                {
-                    var changePasswordWindow = services.GetRequiredService<ChangePasswordWindow>();
-                    if (changePasswordWindow.ShowDialog() != true)
-                    {
-                        await services.GetRequiredService<IAuthenticationService>().LogoutAsync();
-                        continue;
-                    }
-                }
-
-                var shellViewModel = services.GetRequiredService<ShellViewModel>();
-                var shellWindow = new ShellWindow(shellViewModel, session);
-                shellViewModel.LogoutRequested += shellWindow.Close;
-                void Restart() { _restartRequested = true; shellWindow.Close(); }
-                shellViewModel.RestartRequested += Restart;
-                MainWindow = shellWindow;
-                shellWindow.ShowDialog();
-                shellViewModel.LogoutRequested -= shellWindow.Close;
-                shellViewModel.RestartRequested -= Restart;
-
-                if (_restartRequested) break;
-
-                if (services.GetRequiredService<ICurrentUserSession>().IsAuthenticated)
-                {
-                    break;
-                }
-            }
+            StartDailyBackupTimer();
+            await RunSessionLoopAsync();
 
             await PrepareShutdownAsync();
             Shutdown();
         }
         catch (Exception exception)
         {
-            Log.Fatal(exception, "AFMS failed during startup");
+            Log.Fatal(exception, "AFMS could not start");
             MessageBox.Show(
-                "AFMS could not start safely. Technical details were written to the application log.",
-                "AFMS startup error",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error);
-            await PrepareShutdownAsync(false);
+                "AFMS could not start. Details were written to the log folder under " +
+                $"{paths.LogDirectory}.\n\n{exception.Message}",
+                "AFMS could not start", MessageBoxButton.OK, MessageBoxImage.Error);
+            await PrepareShutdownAsync(showBackupWarning: false);
             Shutdown(-1);
+        }
+    }
+
+    private static void ConfigureLogging(ApplicationPaths paths)
+    {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Information()
+            .Enrich.FromLogContext()
+            .Enrich.WithProperty("Application", "AFMS Inventory")
+            .WriteTo.File(
+                Path.Combine(paths.LogDirectory, "afms-.log"),
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 31)
+            .CreateLogger();
+    }
+
+    private static IHost BuildHost(string[] args, ApplicationPaths paths) =>
+        Host.CreateDefaultBuilder(args)
+            .UseSerilog()
+            .ConfigureServices(services =>
+            {
+                services.AddInventoryCore($"Data Source={paths.DatabasePath}");
+                services.AddSingleton<IApplicationPaths>(paths);
+                services.AddSingleton<IUserDialogService, UserDialogService>();
+
+                // Replaces the empty provider registered by the core project.
+                services.AddSingleton<IStarterDataProvider, JsonStarterDataProvider>();
+
+                services.AddTransient<FirstRunViewModel>();
+                services.AddTransient<SignInViewModel>();
+                services.AddTransient<ChangePasswordViewModel>();
+                services.AddTransient<ShellViewModel>();
+                services.AddTransient<DashboardViewModel>();
+                services.AddTransient<ItemsViewModel>();
+                services.AddTransient<PeopleViewModel>();
+                services.AddTransient<StockInViewModel>();
+                services.AddTransient<ReleasesViewModel>();
+                services.AddTransient<OutstandingViewModel>();
+                services.AddTransient<HistoryViewModel>();
+                services.AddTransient<ReportsViewModel>();
+                services.AddTransient<SettingsViewModel>();
+
+                services.AddTransient<FirstRunWindow>();
+                services.AddTransient<SignInWindow>();
+                services.AddTransient<ChangePasswordWindow>();
+            })
+            .Build();
+
+    private async Task<bool> PrepareDatabaseAsync(ApplicationPaths paths)
+    {
+        using var scope = _host!.Services.CreateScope();
+        var services = scope.ServiceProvider;
+        var backups = services.GetRequiredService<IBackupService>();
+
+        // Take a safety copy before a schema upgrade touches existing records.
+        var database = services.GetRequiredService<Core.Persistence.InventoryDbContext>();
+        if (File.Exists(paths.DatabasePath) &&
+            (await database.Database.GetPendingMigrationsAsync()).Any())
+        {
+            await backups.CreateAsync(BackupKind.BeforeUpgrade);
+        }
+
+        await services.GetRequiredService<IDatabaseSetup>().InitializeAsync();
+        _databaseReady = true;
+
+        await backups.WritePendingRestoreAuditAsync();
+        await backups.RunDailyBackupIfDueAsync();
+        return true;
+    }
+
+    private async Task<bool> RunFirstRunSetupIfNeededAsync()
+    {
+        using var scope = _host!.Services.CreateScope();
+        var services = scope.ServiceProvider;
+
+        if (!await services.GetRequiredService<IAuthenticationService>().NeedsFirstAccountAsync())
+            return true;
+
+        var window = services.GetRequiredService<FirstRunWindow>();
+        if (window.ShowDialog() == true) return true;
+
+        await PrepareShutdownAsync();
+        Shutdown();
+        return false;
+    }
+
+    private void StartDailyBackupTimer()
+    {
+        _dailyBackupTimer = new DispatcherTimer { Interval = TimeSpan.FromHours(1) };
+        _dailyBackupTimer.Tick += async (_, _) =>
+        {
+            try
+            {
+                using var scope = _host!.Services.CreateScope();
+                await scope.ServiceProvider.GetRequiredService<IBackupService>()
+                    .RunDailyBackupIfDueAsync();
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, "Scheduled backup failed");
+            }
+        };
+        _dailyBackupTimer.Start();
+    }
+
+    /// <summary>
+    /// Sign in, work, sign out, repeat. Each pass gets its own dependency scope so
+    /// no data from a previous session is carried over.
+    /// </summary>
+    private async Task RunSessionLoopAsync()
+    {
+        while (true)
+        {
+            using var scope = _host!.Services.CreateScope();
+            var services = scope.ServiceProvider;
+
+            var signIn = services.GetRequiredService<SignInWindow>();
+            if (signIn.ShowDialog() != true) break;
+
+            var session = services.GetRequiredService<ICurrentUser>();
+            if (session.User?.MustChangePassword == true)
+            {
+                var change = services.GetRequiredService<ChangePasswordWindow>();
+                if (change.ShowDialog() != true)
+                {
+                    await services.GetRequiredService<IAuthenticationService>().SignOutAsync();
+                    continue;
+                }
+            }
+
+            var shellViewModel = services.GetRequiredService<ShellViewModel>();
+            var shell = new ShellWindow(shellViewModel, session);
+
+            void Restart()
+            {
+                _restartRequested = true;
+                shell.Close();
+            }
+
+            shellViewModel.SignOutRequested += shell.Close;
+            shellViewModel.RestartRequested += Restart;
+            MainWindow = shell;
+
+            shell.ShowDialog();
+
+            shellViewModel.SignOutRequested -= shell.Close;
+            shellViewModel.RestartRequested -= Restart;
+
+            if (_restartRequested) break;
+
+            // Still signed in means the window was closed with the X, so exit.
+            if (session.IsSignedIn) break;
         }
     }
 
@@ -175,7 +218,9 @@ public partial class App : System.Windows.Application
     {
         base.OnExit(e);
         if (_restartRequested && !string.IsNullOrWhiteSpace(Environment.ProcessPath))
+        {
             Process.Start(new ProcessStartInfo(Environment.ProcessPath) { UseShellExecute = true });
+        }
     }
 
     private void RegisterGlobalExceptionHandlers()
@@ -192,12 +237,11 @@ public partial class App : System.Windows.Application
 
     private void HandleDispatcherException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
-        Log.Error(e.Exception, "Unhandled user-interface exception");
+        Log.Error(e.Exception, "Unhandled user-interface error");
         MessageBox.Show(
-            "An unexpected error occurred. Details were recorded in the AFMS log. The application will close to protect your data.",
-            "AFMS error",
-            MessageBoxButton.OK,
-            MessageBoxImage.Error);
+            "Something unexpected happened and AFMS will close to protect your records. " +
+            "The details were written to the log folder.",
+            "AFMS error", MessageBoxButton.OK, MessageBoxImage.Error);
         e.Handled = true;
         ShutdownAfterFatalError();
     }
@@ -207,37 +251,44 @@ public partial class App : System.Windows.Application
 
     private async Task PrepareShutdownCoreAsync(bool showBackupWarning)
     {
-        _maintenanceTimer?.Stop();
-        if (_host is not null && _databaseInitialized)
+        _dailyBackupTimer?.Stop();
+
+        if (_host is not null && _databaseReady)
         {
             try
             {
                 using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(45));
-                using var shutdownScope = _host.Services.CreateScope();
-                var backups = shutdownScope.ServiceProvider.GetRequiredService<IBackupService>();
+                using var scope = _host.Services.CreateScope();
+                var backups = scope.ServiceProvider.GetRequiredService<IBackupService>();
                 if (!backups.HasPendingRestore)
-                    await backups.CreateAsync(AFMS.Domain.Enums.BackupKind.ApplicationClosing, cancellationToken: timeout.Token);
+                    await backups.CreateAsync(BackupKind.OnClosing, cancellationToken: timeout.Token);
             }
             catch (Exception exception)
             {
-                Log.Error(exception, "Automatic closing backup failed");
+                Log.Error(exception, "Closing backup failed");
                 if (showBackupWarning)
-                    MessageBox.Show("AFMS could not complete the automatic closing backup. Your data remains in the live database; create a manual backup before shutting down Windows.",
-                        "Closing backup warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                {
+                    MessageBox.Show(
+                        "AFMS could not finish the automatic backup on closing. Your records are " +
+                        "safe in the live database, but make a manual backup when you can.",
+                        "Backup warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
             }
         }
+
         if (_host is not null)
         {
             await _host.StopAsync(TimeSpan.FromSeconds(10));
             _host.Dispose();
             _host = null;
         }
+
         await Log.CloseAndFlushAsync();
     }
 
     private async void ShutdownAfterFatalError()
     {
-        await PrepareShutdownAsync(false);
+        await PrepareShutdownAsync(showBackupWarning: false);
         Shutdown(-1);
     }
 }

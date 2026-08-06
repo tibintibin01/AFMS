@@ -1,0 +1,134 @@
+<UserControl x:Class="AFMS.App.Views.PeopleView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="26,22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+            <TextBlock Text="People" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock Style="{StaticResource PageSubtitleStyle}"
+                       Text="Everyone you release items to. Hiding someone keeps their past records intact." />
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="0,18,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="170" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox Margin="0,0,10,0" AutomationProperties.Name="Search people"
+                     ToolTip="Search by code, name, position, or office"
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+            <ComboBox Grid.Column="1" Margin="0,0,10,0" AutomationProperties.Name="Filter by status"
+                      ItemsSource="{Binding StatusFilters}" SelectedItem="{Binding SelectedStatusFilter}" />
+            <Button Grid.Column="2" Content="Search" Margin="0,0,10,0" IsDefault="True"
+                    Command="{Binding SearchCommand}" Style="{StaticResource SecondaryButtonStyle}" />
+            <Button Grid.Column="3" Content="Add person" Command="{Binding AddCommand}"
+                    Style="{StaticResource PrimaryButtonStyle}" />
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <ProgressBar Height="3" IsIndeterminate="True"
+                             Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                <DataGrid Grid.Row="1" Margin="0,8,0,10" ItemsSource="{Binding Rows}"
+                          SelectedItem="{Binding Selected}"
+                          AutomationProperties.Name="People">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="90" />
+                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
+                        <DataGridTextColumn Header="Position" Binding="{Binding Position}" Width="150" />
+                        <DataGridTextColumn Header="Office" Binding="{Binding Office}" Width="150" />
+                        <DataGridTextColumn Header="Still holds" Width="95"
+                                            Binding="{Binding OutstandingQuantity, StringFormat={}{0:N0}}"
+                                            ElementStyle="{StaticResource NumericCellStyle}" />
+                        <DataGridCheckBoxColumn Header="Active" Binding="{Binding IsActive}" Width="60" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <TextBlock Grid.Row="1" Style="{StaticResource EmptyStateTextStyle}"
+                           Text="No people match the current filters.&#x0a;Use 'Add person' to create the first one." />
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal">
+                    <Button Content="Edit" Margin="0,0,8,0" Command="{Binding EditCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}" />
+                    <Button Content="{Binding ToggleActiveLabel}" Command="{Binding ToggleActiveCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}" />
+                    <TextBlock Margin="16,10,0,0" Style="{StaticResource NotificationTextStyle}"
+                               Text="{Binding Message}" />
+                </StackPanel>
+            </Grid>
+
+            <Border Grid.Column="1" Width="370" Margin="18,0,0,0" Style="{StaticResource CardStyle}"
+                    Visibility="{Binding IsEditorOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="{Binding EditorTitle}" Style="{StaticResource SectionTitleStyle}" />
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,4,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Code or initials *" Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding Code}" MaxLength="50"
+                                     AutomationProperties.Name="Code or initials"
+                                     ToolTip="A short code you will recognise, such as SMV" />
+
+                            <TextBlock Text="Full name *" Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding Name}" MaxLength="200"
+                                     AutomationProperties.Name="Full name" />
+
+                            <TextBlock Text="Position" Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding Position}" MaxLength="150"
+                                     AutomationProperties.Name="Position" />
+
+                            <TextBlock Text="Office or department" Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding Office}" MaxLength="200"
+                                     AutomationProperties.Name="Office or department" />
+
+                            <TextBlock Text="Contact number" Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding ContactNumber}" MaxLength="50"
+                                     AutomationProperties.Name="Contact number" />
+
+                            <CheckBox Content="Show in the release form" Margin="0,16,0,0"
+                                      IsChecked="{Binding EditorIsActive}" />
+
+                            <TextBlock Text="Remarks" Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding Remarks}" AcceptsReturn="True" Height="64"
+                                     TextWrapping="Wrap" VerticalContentAlignment="Top"
+                                     AutomationProperties.Name="Remarks" />
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right"
+                                Margin="0,16,0,0">
+                        <Button Content="Cancel" Margin="0,0,8,0" Command="{Binding CancelCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" />
+                        <Button Content="Save" Command="{Binding SaveCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

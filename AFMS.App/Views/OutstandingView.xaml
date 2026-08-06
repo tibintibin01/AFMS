@@ -1,0 +1,145 @@
+<UserControl x:Class="AFMS.App.Views.OutstandingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="26,22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Who Has What" Style="{StaticResource PageTitleStyle}" />
+                <TextBlock Style="{StaticResource PageSubtitleStyle}"
+                           Text="Everything released and not yet returned, with the serial numbers each person still holds." />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,6,0,0">
+                <Button Content="Refresh" Margin="0,0,8,0" Command="{Binding RefreshCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}" />
+                <Button Content="Print list" Command="{Binding PrintCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}" />
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="0,18,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="260" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ComboBox ItemsSource="{Binding PeopleFilter}" SelectedItem="{Binding FilterPerson}"
+                      DisplayMemberPath="Display" AutomationProperties.Name="Filter by person" />
+            <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right"
+                       FontWeight="SemiBold" Foreground="{StaticResource NavyBrush}"
+                       Text="{Binding GrandTotal, StringFormat=Total still out: {0:N0}}" />
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="360" />
+                <ColumnDefinition Width="18" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <ProgressBar Height="3" IsIndeterminate="True"
+                             Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                <ListBox Grid.Row="1" Margin="0,8,0,0" ItemsSource="{Binding People}"
+                         SelectedItem="{Binding SelectedPerson}"
+                         BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                         Background="White" HorizontalContentAlignment="Stretch"
+                         AutomationProperties.Name="People holding items">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="4,7">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding RecipientName}" FontWeight="SemiBold"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock FontSize="11" Foreground="{StaticResource MutedTextBrush}"
+                                               TextTrimming="CharacterEllipsis">
+                                        <Run Text="{Binding RecipientCode, Mode=OneWay}" />
+                                        <Run Text="·" />
+                                        <Run Text="{Binding Items.Count, Mode=OneWay}" />
+                                        <Run Text="item type(s)" />
+                                    </TextBlock>
+                                </StackPanel>
+                                <Border Grid.Column="1" Background="{StaticResource NavyLightBrush}"
+                                        CornerRadius="11" Padding="10,4" VerticalAlignment="Center">
+                                    <TextBlock FontWeight="Bold" FontSize="11"
+                                               Foreground="{StaticResource NavyBrush}"
+                                               Text="{Binding TotalQuantity, StringFormat={}{0:N0}}" />
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <TextBlock Grid.Row="1" IsHitTestVisible="False" TextAlignment="Center" TextWrapping="Wrap"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20"
+                           Foreground="{StaticResource MutedTextBrush}"
+                           Text="Nothing is out with anyone right now.&#x0a;Everything released has been returned."
+                           Visibility="{Binding IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            </Grid>
+
+            <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Text="{Binding SelectedPersonHeading}"
+                                   Style="{StaticResource SectionTitleStyle}" TextWrapping="Wrap" />
+                        <TextBlock Margin="0,4,0,10" FontSize="12" TextWrapping="Wrap"
+                                   Foreground="{StaticResource MutedTextBrush}"
+                                   Text="To clear any of these, record a Stock In entry of the kind 'Returned by a recipient'." />
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding SelectedPersonItems}"
+                              AutomationProperties.Name="Items this person still holds">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Code" Binding="{Binding ItemCode}" Width="100" />
+                            <DataGridTextColumn Header="Item" Binding="{Binding ItemName}" Width="*" />
+                            <DataGridTextColumn Header="Unit" Binding="{Binding Unit}" Width="70" />
+                            <DataGridTextColumn Header="Released" Width="80"
+                                                Binding="{Binding Released, StringFormat={}{0:N0}}"
+                                                ElementStyle="{StaticResource NumericCellStyle}" />
+                            <DataGridTextColumn Header="Returned" Width="80"
+                                                Binding="{Binding Returned, StringFormat={}{0:N0}}"
+                                                ElementStyle="{StaticResource NumericCellStyle}" />
+                            <DataGridTextColumn Header="Still held" Width="80"
+                                                Binding="{Binding Outstanding, StringFormat={}{0:N0}}"
+                                                ElementStyle="{StaticResource NumericBoldCellStyle}" />
+                            <DataGridTextColumn Header="Serials still held" Binding="{Binding SerialsHeld}"
+                                                Width="190"
+                                                ElementStyle="{StaticResource MonospaceCellStyle}" />
+                            <DataGridTextColumn Header="Last released" Width="110"
+                                                Binding="{Binding LastReleasedOn, StringFormat=MMM d\, yyyy}" />
+                            <DataGridTextColumn Header="Reference" Binding="{Binding LastReference}" Width="125" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <TextBlock Grid.Row="1" IsHitTestVisible="False" HorizontalAlignment="Center"
+                               VerticalAlignment="Center" Foreground="{StaticResource MutedTextBrush}"
+                               Text="Pick a person on the left."
+                               Visibility="{Binding HasSelection, Converter={StaticResource BooleanToCollapsedConverter}}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -9,6 +9,8 @@
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
+            <converters:BooleanToCollapsedConverter x:Key="BooleanToCollapsedConverter" />
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
             <converters:StringEqualityMultiConverter x:Key="StringEqualityMultiConverter" />
         </ResourceDictionary>
     </Application.Resources>
