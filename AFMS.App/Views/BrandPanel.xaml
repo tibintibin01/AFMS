@@ -48,11 +48,17 @@
 
                 <!-- Mark -->
                 <StackPanel Orientation="Horizontal">
-                    <Border Width="52" Height="52" CornerRadius="26" Background="#0E2033"
-                            BorderBrush="{StaticResource GoldBrush}" BorderThickness="1.5">
-                        <Image Source="/Assets/logo.png" Width="44" Height="44" Stretch="Uniform"
-                               RenderOptions.BitmapScalingMode="HighQuality" />
-                    </Border>
+                    <!--
+                      An Ellipse filled with the logo, not a Border wrapping an Image: a
+                      Border does not clip its content, so a square image inside a
+                      rounded Border pokes past the curve at the corners ("ears"). An
+                      Ellipse fill clips perfectly by construction.
+                    -->
+                    <Ellipse Width="52" Height="52" Stroke="{StaticResource GoldBrush}" StrokeThickness="1.5">
+                        <Ellipse.Fill>
+                            <ImageBrush ImageSource="/Assets/logo.png" Stretch="UniformToFill" />
+                        </Ellipse.Fill>
+                    </Ellipse>
                     <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
                         <TextBlock Text="AFMS" Foreground="White" FontSize="17" FontWeight="Bold" />
                         <TextBlock Text="INVENTORY RECORDS" Foreground="#8FA8BE" FontSize="9"
