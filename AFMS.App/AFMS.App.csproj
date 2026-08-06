@@ -3,20 +3,37 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationTitle>AFMS Inventory</ApplicationTitle>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AFMS.Application\AFMS.Application.csproj" />
-    <ProjectReference Include="..\AFMS.Infrastructure\AFMS.Infrastructure.csproj" />
+    <ProjectReference Include="..\AFMS.Core\AFMS.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
     <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Copied beside the exe so the office can edit its starter items and people,
+      and also embedded as a fallback. A publish that drops the loose file, or a
+      user who deletes it, then still gets a working starter list.
+    -->
+    <None Update="starter-data.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+    <EmbeddedResource Include="starter-data.json" LogicalName="starter-data.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The municipal seal, used as the mark on the sign-in and setup screens. -->
+    <Resource Include="Assets\logo.png" />
   </ItemGroup>
 
 </Project>

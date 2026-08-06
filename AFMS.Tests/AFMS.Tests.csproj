@@ -2,14 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <!-- The build machine may only have a newer runtime installed. -->
+    <RollForward>LatestMajor</RollForward>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
   </ItemGroup>
@@ -19,9 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AFMS.Domain\AFMS.Domain.csproj" />
-    <ProjectReference Include="..\AFMS.Application\AFMS.Application.csproj" />
-    <ProjectReference Include="..\AFMS.Infrastructure\AFMS.Infrastructure.csproj" />
+    <ProjectReference Include="..\AFMS.Core\AFMS.Core.csproj" />
   </ItemGroup>
 
 </Project>

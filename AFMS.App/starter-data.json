@@ -1,0 +1,47 @@
+{
+  "//": "Optional starter records, imported once into a brand new database. Edit freely before first launch, then bump Version to re-import. Nothing here overwrites anything you later change in the app.",
+  "Version": "dipaculao-2026-01",
+
+  "Settings": {
+    "OfficeName": "Municipal Treasury Office",
+    "MunicipalityName": "Dipaculao",
+    "ProvinceName": "Aurora"
+  },
+
+  "Items": [
+    { "Code": "BIR-0016", "Name": "Cedula (community tax certificate)", "Unit": "booklet", "Category": "Accountable form", "TracksSerials": true, "ReorderLevel": 5 },
+    { "Code": "BIR-0017", "Name": "Corporate cedula", "Unit": "booklet", "Category": "Accountable form", "TracksSerials": true, "ReorderLevel": 3 },
+    { "Code": "AF51", "Name": "Official receipt - local", "Unit": "booklet", "Category": "Accountable form", "TracksSerials": true, "ReorderLevel": 5 },
+    { "Code": "AF51-BLD", "Name": "Official receipt - local (BLD)", "Unit": "booklet", "Category": "Accountable form", "TracksSerials": true, "ReorderLevel": 3 },
+    { "Code": "AF51-TRUST", "Name": "Official receipt - trust fund", "Unit": "booklet", "Category": "Accountable form", "TracksSerials": true, "ReorderLevel": 3 },
+    { "Code": "AF52", "Name": "Official receipt - transfer of ownership", "Unit": "booklet", "Category": "Accountable form", "TracksSerials": true, "ReorderLevel": 3 },
+    { "Code": "AF53", "Name": "Certificate of ownership", "Unit": "booklet", "Category": "Accountable form", "TracksSerials": true, "ReorderLevel": 3 },
+    { "Code": "AF54", "Name": "Marriage certificate", "Unit": "booklet", "Category": "Accountable form", "TracksSerials": true, "ReorderLevel": 3 },
+    { "Code": "AF56", "Name": "Official receipt - real property tax", "Unit": "booklet", "Category": "Accountable form", "TracksSerials": true, "ReorderLevel": 5 },
+    { "Code": "AF57", "Name": "Slaughter permit", "Unit": "booklet", "Category": "Accountable form", "TracksSerials": true, "ReorderLevel": 3 },
+    { "Code": "AF58", "Name": "Burial permit", "Unit": "booklet", "Category": "Accountable form", "TracksSerials": true, "ReorderLevel": 3 },
+    { "Code": "CASH-TICKET", "Name": "Cash ticket", "Unit": "booklet", "Category": "Accountable form", "TracksSerials": true, "ReorderLevel": 5 },
+
+    { "Code": "PAPER-A4", "Name": "Bond paper A4", "Unit": "ream", "Category": "Office supply", "TracksSerials": false, "ReorderLevel": 10 },
+    { "Code": "PAPER-LEGAL", "Name": "Bond paper legal", "Unit": "ream", "Category": "Office supply", "TracksSerials": false, "ReorderLevel": 10 },
+    { "Code": "PEN-BLACK", "Name": "Ballpen, black", "Unit": "box", "Category": "Office supply", "TracksSerials": false, "ReorderLevel": 5 },
+    { "Code": "PEN-BLUE", "Name": "Ballpen, blue", "Unit": "box", "Category": "Office supply", "TracksSerials": false, "ReorderLevel": 5 },
+    { "Code": "FOLDER-LONG", "Name": "Folder, long", "Unit": "pcs", "Category": "Office supply", "TracksSerials": false, "ReorderLevel": 50 },
+    { "Code": "STAPLE-WIRE", "Name": "Staple wire", "Unit": "box", "Category": "Office supply", "TracksSerials": false, "ReorderLevel": 5 },
+    { "Code": "INK-BLACK", "Name": "Printer ink, black", "Unit": "bottle", "Category": "Office supply", "TracksSerials": false, "ReorderLevel": 3 },
+    { "Code": "RECORD-BOOK", "Name": "Record book", "Unit": "pcs", "Category": "Office supply", "TracksSerials": false, "ReorderLevel": 5 }
+  ],
+
+  "People": [
+    { "Code": "MEPC", "Name": "Maria Elena P. Chavez", "Position": "Municipal Treasurer", "Office": "Municipal Treasury Office" },
+    { "Code": "SMV", "Name": "Shella May I. Velasco", "Position": "Revenue Collection Clerk", "Office": "Municipal Treasury Office" },
+    { "Code": "AU", "Name": "Marigold L. Dela Cruz", "Position": "Revenue Collection Clerk", "Office": "Municipal Treasury Office" },
+    { "Code": "LCM", "Name": "Leonardo C. Marzan Jr.", "Position": "Revenue Collection Clerk", "Office": "Municipal Treasury Office" },
+    { "Code": "NPDR", "Name": "Nobleza P. Delos Reyes", "Position": "Revenue Collection Clerk", "Office": "Municipal Treasury Office" },
+    { "Code": "ADRA", "Name": "Angelita DR. Agua", "Position": "Revenue Collection Clerk", "Office": "Municipal Treasury Office" },
+    { "Code": "KFJ", "Name": "Kristofferson F. Javar", "Position": "Revenue Collection Clerk", "Office": "Municipal Treasury Office" },
+    { "Code": "CJC", "Name": "Cherrie Joy L. Cacanindin", "Position": "Revenue Collection Clerk", "Office": "Municipal Treasury Office" },
+    { "Code": "RMGC", "Name": "Rhonica May G. Cagurangan", "Position": "Revenue Collection Clerk", "Office": "Municipal Treasury Office" },
+    { "Code": "CLQ", "Name": "Cecille Lyn C. Quirino", "Position": "Revenue Collection Clerk", "Office": "Municipal Treasury Office" }
+  ]
+}

@@ -3,20 +3,29 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:viewModels="clr-namespace:AFMS.App.ViewModels"
         xmlns:views="clr-namespace:AFMS.App.Views"
-        Title="AFMS – Accountable Forms Management System"
-        Width="1240" Height="760" MinWidth="920" MinHeight="620"
-        WindowStartupLocation="CenterScreen">
+        Title="AFMS Inventory"
+        Width="1340" Height="820" MinWidth="1080" MinHeight="660"
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
+
     <Window.Resources>
-        <DataTemplate DataType="{x:Type viewModels:PlaceholderPageViewModel}">
-            <views:PlaceholderPageView />
-        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:DashboardViewModel}"><views:DashboardView /></DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:StockInViewModel}"><views:StockInView /></DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:ReleasesViewModel}"><views:ReleasesView /></DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:OutstandingViewModel}"><views:OutstandingView /></DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:HistoryViewModel}"><views:HistoryView /></DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:ReportsViewModel}"><views:ReportsView /></DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:ItemsViewModel}"><views:ItemsView /></DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:PeopleViewModel}"><views:PeopleView /></DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:SettingsViewModel}"><views:SettingsView /></DataTemplate>
     </Window.Resources>
-    <Grid>
+
+    <Grid Background="{StaticResource CanvasBrush}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="248" />
+            <ColumnDefinition Width="250" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
+        <!-- Navigation -->
         <Border Background="{StaticResource NavyBrush}">
             <Grid>
                 <Grid.RowDefinitions>
@@ -24,64 +33,214 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <StackPanel Margin="24,25,20,22">
-                    <StackPanel Orientation="Horizontal">
-                        <Border Width="44" Height="44" CornerRadius="22" Background="{StaticResource GoldBrush}">
-                            <TextBlock Text="AF" FontSize="16" FontWeight="Bold" Foreground="{StaticResource NavyDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <StackPanel Margin="12,2,0,0">
-                            <TextBlock Text="AFMS" Foreground="White" FontSize="20" FontWeight="Bold" />
-                            <TextBlock Text="TREASURY OFFICE" Foreground="#AFC0CF" FontSize="9" FontWeight="SemiBold" />
-                        </StackPanel>
+
+                <Grid Margin="20,22,16,18">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="46" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <!-- An Ellipse fill clips the logo cleanly; a Border does not clip its content. -->
+                    <Ellipse Width="44" Height="44" Stroke="{StaticResource GoldBrush}" StrokeThickness="1.5">
+                        <Ellipse.Fill>
+                            <ImageBrush ImageSource="/Assets/logo.png" Stretch="UniformToFill" />
+                        </Ellipse.Fill>
+                    </Ellipse>
+                    <StackPanel Grid.Column="1" Margin="11,2,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="AFMS" Foreground="White" FontSize="19" FontWeight="Bold" />
+                        <TextBlock Text="INVENTORY RECORDS" Foreground="#AFC4D7" FontSize="9"
+                                   FontWeight="SemiBold" />
                     </StackPanel>
-                </StackPanel>
+                </Grid>
 
-                <StackPanel Grid.Row="1">
-                    <TextBlock Text="MAIN MENU" Foreground="#8299AD" FontSize="10" FontWeight="SemiBold" Margin="24,12,0,8" />
-                    <Button Content="Dashboard" Command="{Binding DashboardCommand}" Style="{StaticResource NavigationButtonStyle}" />
-                    <Button Content="Accountable Forms" Command="{Binding AccountableFormsCommand}" Style="{StaticResource NavigationButtonStyle}" />
-                    <Button Content="Transactions" Command="{Binding TransactionsCommand}" Style="{StaticResource NavigationButtonStyle}" />
-                    <Button Content="Collectors" Command="{Binding CollectorsCommand}" Style="{StaticResource NavigationButtonStyle}" />
-                    <Button Content="Reports" Command="{Binding ReportsCommand}" Style="{StaticResource NavigationButtonStyle}" />
-                    <TextBlock Text="SYSTEM" Foreground="#8299AD" FontSize="10" FontWeight="SemiBold" Margin="24,24,0,8"
-                               Visibility="{Binding CanAccessAdministration, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                    <Button Content="Administration" Command="{Binding AdministrationCommand}" Style="{StaticResource NavigationButtonStyle}"
-                            Visibility="{Binding CanAccessAdministration, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                </StackPanel>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="0,2,0,12" KeyboardNavigation.TabNavigation="Continue">
 
-                <Border Grid.Row="2" BorderBrush="#36536D" BorderThickness="0,1,0,0" Padding="22,17">
+                        <ToggleButton Tag="Dashboard" Content="Dashboard" CommandParameter="&#xE80F;"
+                                      Command="{Binding DashboardCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="Dashboard">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
+
+                        <TextBlock Text="RECORD" Foreground="#8FA8BE" FontSize="10" FontWeight="SemiBold"
+                                   Margin="22,18,0,7" />
+
+                        <ToggleButton Tag="Stock In" Content="Stock In" CommandParameter="&#xE896;"
+                                      Command="{Binding StockInCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="Record incoming stock">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
+
+                        <ToggleButton Tag="Release" Content="Release" CommandParameter="&#xE72D;"
+                                      Command="{Binding ReleasesCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="Release items to a person">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
+
+                        <TextBlock Text="REVIEW" Foreground="#8FA8BE" FontSize="10" FontWeight="SemiBold"
+                                   Margin="22,18,0,7" />
+
+                        <ToggleButton Tag="Who Has What" Content="Who Has What" CommandParameter="&#xE8EF;"
+                                      Command="{Binding OutstandingCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="Who has what, still unreturned">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
+
+                        <ToggleButton Tag="History" Content="History" CommandParameter="&#xE81C;"
+                                      Command="{Binding HistoryCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="Full in and out history">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
+
+                        <ToggleButton Tag="Reports" Content="Reports" CommandParameter="&#xE9D2;"
+                                      Command="{Binding ReportsCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="Printable reports">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
+
+                        <TextBlock Text="SET UP" Foreground="#8FA8BE" FontSize="10" FontWeight="SemiBold"
+                                   Margin="22,18,0,7" />
+
+                        <ToggleButton Tag="Items" Content="Items" CommandParameter="&#xE8FD;"
+                                      Command="{Binding ItemsCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="Items being tracked">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
+
+                        <ToggleButton Tag="People" Content="People" CommandParameter="&#xE77B;"
+                                      Command="{Binding PeopleCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="People who receive items">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
+
+                        <ToggleButton Tag="Settings" Content="Settings &amp; Backup" CommandParameter="&#xE713;"
+                                      Command="{Binding SettingsCommand}"
+                                      Style="{StaticResource NavigationToggleButtonStyle}"
+                                      AutomationProperties.Name="Settings, backup, and audit trail">
+                            <ToggleButton.IsChecked>
+                                <MultiBinding Converter="{StaticResource StringEqualityMultiConverter}" Mode="OneWay">
+                                    <Binding Path="CurrentSection" />
+                                    <Binding RelativeSource="{RelativeSource Self}" Path="Tag" />
+                                </MultiBinding>
+                            </ToggleButton.IsChecked>
+                        </ToggleButton>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Border Grid.Row="2" BorderBrush="#345778" BorderThickness="0,1,0,0" Padding="16,14">
                     <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="{Binding DisplayName}" Foreground="White" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                        <TextBlock Grid.Row="1" Text="{Binding RoleSummary}" Foreground="#AFC0CF" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
-                        <Button Grid.Row="2" Content="Sign out" Command="{Binding LogoutCommand}" Foreground="#DDE7F0" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left" Padding="0" Margin="0,12,0,0" Cursor="Hand" />
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="36" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="32" Height="32" CornerRadius="16" Background="#2B5275">
+                            <TextBlock Text="&#xE77B;" FontFamily="Segoe Fluent Icons" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="9,0,6,0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding DisplayName}" Foreground="White" FontWeight="SemiBold"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="Signed in" Foreground="#AFC4D7" FontSize="10" Margin="0,2,0,0" />
+                        </StackPanel>
+                        <Button Grid.Column="2" Content="&#xE8AC;" FontFamily="Segoe Fluent Icons"
+                                ToolTip="Sign out" AutomationProperties.Name="Sign out"
+                                Command="{Binding SignOutCommand}"
+                                Width="36" Height="36" Padding="0" Foreground="#D8E5F0"
+                                Background="Transparent" BorderThickness="0" />
                     </Grid>
                 </Border>
             </Grid>
         </Border>
 
-        <Grid Grid.Column="1" Background="{StaticResource CanvasBrush}">
+        <!-- Content -->
+        <Grid Grid.Column="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="64" />
+                <RowDefinition Height="62" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
-                <Grid Margin="30,0">
+
+            <Border Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                <Grid Margin="26,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Municipal Treasury Office" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <Border Grid.Column="1" Background="#E9F5EE" CornerRadius="12" Padding="11,5" VerticalAlignment="Center">
-                        <TextBlock Text="OFFLINE READY" Foreground="#257247" FontSize="10" FontWeight="Bold" />
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="AFMS Inventory" Foreground="{StaticResource MutedTextBrush}" />
+                        <TextBlock Text="/" Foreground="#B1BECA" Margin="9,0" />
+                        <TextBlock Text="{Binding CurrentSection}" FontWeight="SemiBold"
+                                   Foreground="{StaticResource NavyBrush}" />
+                    </StackPanel>
+                    <Border Grid.Column="1" Background="#EAF6F1" CornerRadius="13" Padding="10,5"
+                            VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="7" Height="7" Fill="{StaticResource SuccessBrush}"
+                                     Margin="0,0,7,0" VerticalAlignment="Center" />
+                            <TextBlock Text="SAVED ON THIS COMPUTER" Foreground="{StaticResource SuccessBrush}"
+                                       FontSize="10" FontWeight="Bold" />
+                        </StackPanel>
                     </Border>
                 </Grid>
             </Border>
-            <ContentControl Grid.Row="1" Content="{Binding CurrentPage}" />
+
+            <Border Grid.Row="1" Background="#FFF8F7" BorderBrush="#E8BBB7" BorderThickness="0,0,0,1"
+                    Padding="26,10"
+                    Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}">
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource DangerBrush}"
+                           TextWrapping="Wrap" FontWeight="SemiBold" />
+            </Border>
+
+            <ContentControl Grid.Row="2" Content="{Binding CurrentPage}" />
         </Grid>
     </Grid>
 </Window>
